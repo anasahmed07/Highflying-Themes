@@ -28,7 +28,7 @@
 
 ## 📸 Screenshots
 
-![Highflying Themes Banner](https://www.github.com/anasahmed07/highflying-themes/public/banner.png)
+![Highflying Themes Banner](https://github.com/anasahmed07/Highflying-Themes/blob/main/public/banner.png)
 
 ---
 
