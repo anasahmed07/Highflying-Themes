@@ -1,4 +1,4 @@
-import { Circle, CircleUserRound, MenuIcon } from "lucide-react"
+import { CircleUserRound, MenuIcon } from "lucide-react"
 import Link from "next/link"
 
 const Header = () => {
