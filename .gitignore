@@ -25,7 +25,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# env files
+.env*
 .env*.local
 .env.local
 # vercel
@@ -36,3 +37,7 @@ yarn-error.log*
 next-env.d.ts
 
 certificates
+
+# Python
+__pycache__*
+.venv*

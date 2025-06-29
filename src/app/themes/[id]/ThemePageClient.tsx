@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react';
-import { ArrowLeft, Download, Heart, Share2, Star, Eye, MessageCircle, Calendar } from 'lucide-react';
+import { ArrowLeft, Download, Heart, Share2, Star, Eye, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
 interface Theme {

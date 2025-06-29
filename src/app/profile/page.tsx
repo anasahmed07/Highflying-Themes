@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react';
-import { User, Settings, Upload, Heart, Download, Eye, Edit, Camera, Bell, Shield, Palette } from 'lucide-react';
+import { User, Settings, Upload, Heart, Download, Eye, Edit, Camera, Bell, Palette } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProfilePage() {
@@ -179,21 +179,21 @@ export default function ProfilePage() {
                   <div className="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg">
                     <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                     <div className="flex-1">
-                      <p className="text-white text-sm">Uploaded "Ocean Breeze" theme</p>
+                      <p className="text-white text-sm">Uploaded &ldquo;Ocean Breeze&rdquo; theme</p>
                       <p className="text-gray-400 text-xs">2 days ago</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg">
                     <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                     <div className="flex-1">
-                      <p className="text-white text-sm">Liked "Cyberpunk Neon" theme</p>
+                      <p className="text-white text-sm">Liked &ldquo;Cyberpunk Neon&rdquo; theme</p>
                       <p className="text-gray-400 text-xs">1 week ago</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg">
                     <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                     <div className="flex-1">
-                      <p className="text-white text-sm">Updated "Minimal Dark Elegance"</p>
+                      <p className="text-white text-sm">Updated &ldquo;Minimal Dark Elegance&rdquo;</p>
                       <p className="text-gray-400 text-xs">2 weeks ago</p>
                     </div>
                   </div>
