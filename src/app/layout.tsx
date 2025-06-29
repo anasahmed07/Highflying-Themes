@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className='bg-[#060606] text-white  max-w-7xl mx-auto'>
+      <body className='bg-[#060606] text-white  max-w-7xl mx-auto font-mono'>
       <SplashCursor />
       <Header />
       {children}

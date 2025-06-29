@@ -10,12 +10,12 @@ import { useEffect, useRef } from "react";
 function SplashCursor({
   // Add whatever props you like for customization
   SIM_RESOLUTION = 128,
-  DYE_RESOLUTION = 1440,
+  DYE_RESOLUTION = 512,
   CAPTURE_RESOLUTION = 512,
   DENSITY_DISSIPATION = 3.5,
   VELOCITY_DISSIPATION = 2,
   PRESSURE = 0.1,
-  PRESSURE_ITERATIONS = 20,
+  PRESSURE_ITERATIONS = 15,
   CURL = 3,
   SPLAT_RADIUS = 0.2,
   SPLAT_FORCE = 6000,
@@ -23,12 +23,77 @@ function SplashCursor({
   COLOR_UPDATE_SPEED = 10,
   BACK_COLOR = { r: 0.5, g: 0, b: 0 },
   TRANSPARENT = true,
+  AUTO_SPLAT_INTERVAL = 10, // Time between auto splats in milliseconds (60fps for smooth movement)
+  AUTO_SPLAT_RADIUS = 0.3, // Radius for auto splats
 }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // --- Animation frame ref ---
+    const animationFrameId = { current: null };
+    const autoSplatIntervalId = { current: null };
+
+    // --- Auto splat simulation ---
+    let currentX = 0.5; // Start at center of screen
+    let currentY = 0.5;
+    let velocityX = 0;
+    let velocityY = 0;
+    let lastSplatTime = 0;
+
+    function simulateRandomMouseMovement() {
+      let pointer = pointers[0];
+      const now = Date.now();
+      
+      // Update velocity with some randomness and momentum
+      velocityX += (Math.random() - 0.5) * 0.02;
+      velocityY += (Math.random() - 0.5) * 0.02;
+      
+      // Add some damping to prevent excessive speed
+      velocityX *= 0.75;
+      velocityY *= 0.75;
+      
+      // Update position based on velocity
+      currentX += velocityX;
+      currentY += velocityY;
+      
+      // Keep position within bounds with bounce effect
+      if (currentX < 0.1 || currentX > 0.9) {
+        velocityX *= -0.8; // Bounce back
+        currentX = Math.max(0.1, Math.min(0.9, currentX));
+      }
+      if (currentY < 0.1 || currentY > 0.9) {
+        velocityY *= -0.8; // Bounce back
+        currentY = Math.max(0.1, Math.min(0.9, currentY));
+      }
+      
+      // Update pointer data for smooth movement
+      pointer.prevTexcoordX = pointer.texcoordX;
+      pointer.prevTexcoordY = pointer.texcoordY;
+      pointer.texcoordX = currentX;
+      pointer.texcoordY = currentY;
+      pointer.deltaX = correctDeltaX(pointer.texcoordX - pointer.prevTexcoordX);
+      pointer.deltaY = correctDeltaY(pointer.texcoordY - pointer.prevTexcoordY);
+      pointer.moved = Math.abs(pointer.deltaX) > 0.001 || Math.abs(pointer.deltaY) > 0.001;
+      pointer.color = generateColor();
+      
+      // Create splat only if there's significant movement and enough time has passed
+      if (pointer.moved && (now - lastSplatTime) > 50) { // Minimum 50ms between splats
+        const color = generateColor();
+        color.r *= 10.0;
+        color.g *= 10.0;
+        color.b *= 10.0;
+        
+        // Use the velocity for more realistic splat force
+        const dx = velocityX * config.SPLAT_FORCE * 5;
+        const dy = velocityY * config.SPLAT_FORCE * 5;
+        
+        splat(pointer.texcoordX, pointer.texcoordY, dx, dy, color);
+        lastSplatTime = now;
+      }
+    }
 
     function pointerPrototype() {
       this.id = -1;
@@ -802,10 +867,9 @@ function SplashCursor({
       const dt = calcDeltaTime();
       if (resizeCanvas()) initFramebuffers();
       updateColors(dt);
-      applyInputs();
       step(dt);
       render(null);
-      requestAnimationFrame(updateFrame);
+      animationFrameId.current = requestAnimationFrame(updateFrame);
     }
 
     function calcDeltaTime() {
@@ -835,15 +899,6 @@ function SplashCursor({
           p.color = generateColor();
         });
       }
-    }
-
-    function applyInputs() {
-      pointers.forEach((p) => {
-        if (p.moved) {
-          p.moved = false;
-          splatPointer(p);
-        }
-      });
     }
 
     function step(dt) {
@@ -993,22 +1048,6 @@ function SplashCursor({
       blit(target);
     }
 
-    function splatPointer(pointer) {
-      let dx = pointer.deltaX * config.SPLAT_FORCE;
-      let dy = pointer.deltaY * config.SPLAT_FORCE;
-      splat(pointer.texcoordX, pointer.texcoordY, dx, dy, pointer.color);
-    }
-
-    function clickSplat(pointer) {
-      const color = generateColor();
-      color.r *= 10.0;
-      color.g *= 10.0;
-      color.b *= 10.0;
-      let dx = 10 * (Math.random() - 0.5);
-      let dy = 30 * (Math.random() - 0.5);
-      splat(pointer.texcoordX, pointer.texcoordY, dx, dy, color);
-    }
-
     function splat(x, y, dx, dy, color) {
       splatProgram.bind();
       gl.uniform1i(splatProgram.uniforms.uTarget, velocity.read.attach(0));
@@ -1035,35 +1074,6 @@ function SplashCursor({
       let aspectRatio = canvas.width / canvas.height;
       if (aspectRatio > 1) radius *= aspectRatio;
       return radius;
-    }
-
-    function updatePointerDownData(pointer, id, posX, posY) {
-      pointer.id = id;
-      pointer.down = true;
-      pointer.moved = false;
-      pointer.texcoordX = posX / canvas.width;
-      pointer.texcoordY = 1.0 - posY / canvas.height;
-      pointer.prevTexcoordX = pointer.texcoordX;
-      pointer.prevTexcoordY = pointer.texcoordY;
-      pointer.deltaX = 0;
-      pointer.deltaY = 0;
-      pointer.color = generateColor();
-    }
-
-    function updatePointerMoveData(pointer, posX, posY, color) {
-      pointer.prevTexcoordX = pointer.texcoordX;
-      pointer.prevTexcoordY = pointer.texcoordY;
-      pointer.texcoordX = posX / canvas.width;
-      pointer.texcoordY = 1.0 - posY / canvas.height;
-      pointer.deltaX = correctDeltaX(pointer.texcoordX - pointer.prevTexcoordX);
-      pointer.deltaY = correctDeltaY(pointer.texcoordY - pointer.prevTexcoordY);
-      pointer.moved =
-        Math.abs(pointer.deltaX) > 0 || Math.abs(pointer.deltaY) > 0;
-      pointer.color = color;
-    }
-
-    function updatePointerUpData(pointer) {
-      pointer.down = false;
     }
 
     function correctDeltaX(delta) {
@@ -1161,83 +1171,29 @@ function SplashCursor({
       return hash;
     }
 
-    window.addEventListener("mousedown", (e) => {
-      let pointer = pointers[0];
-      let posX = scaleByPixelRatio(e.clientX);
-      let posY = scaleByPixelRatio(e.clientY);
-      updatePointerDownData(pointer, -1, posX, posY);
-      clickSplat(pointer);
-    });
+    // --- Animation loop with cancellation ---
+    function updateFrameWrapper() {
+      const dt = calcDeltaTime();
+      if (resizeCanvas()) initFramebuffers();
+      updateColors(dt);
+      step(dt);
+      render(null);
+      animationFrameId.current = requestAnimationFrame(updateFrameWrapper);
+    }
+    animationFrameId.current = requestAnimationFrame(updateFrameWrapper);
 
-    document.body.addEventListener(
-      "mousemove",
-      function handleFirstMouseMove(e) {
-        let pointer = pointers[0];
-        let posX = scaleByPixelRatio(e.clientX);
-        let posY = scaleByPixelRatio(e.clientY);
-        let color = generateColor();
-        updateFrame(); // start animation loop
-        updatePointerMoveData(pointer, posX, posY, color);
-        document.body.removeEventListener("mousemove", handleFirstMouseMove);
-      },
-    );
+    // Start auto splat interval
+    autoSplatIntervalId.current = setInterval(simulateRandomMouseMovement, AUTO_SPLAT_INTERVAL);
 
-    window.addEventListener("mousemove", (e) => {
-      let pointer = pointers[0];
-      let posX = scaleByPixelRatio(e.clientX);
-      let posY = scaleByPixelRatio(e.clientY);
-      let color = pointer.color;
-      updatePointerMoveData(pointer, posX, posY, color);
-    });
-
-    document.body.addEventListener(
-      "touchstart",
-      function handleFirstTouchStart(e) {
-        const touches = e.targetTouches;
-        let pointer = pointers[0];
-        for (let i = 0; i < touches.length; i++) {
-          let posX = scaleByPixelRatio(touches[i].clientX);
-          let posY = scaleByPixelRatio(touches[i].clientY);
-          updateFrame(); // start animation loop
-          updatePointerDownData(pointer, touches[i].identifier, posX, posY);
-        }
-        document.body.removeEventListener("touchstart", handleFirstTouchStart);
-      },
-    );
-
-    window.addEventListener("touchstart", (e) => {
-      const touches = e.targetTouches;
-      let pointer = pointers[0];
-      for (let i = 0; i < touches.length; i++) {
-        let posX = scaleByPixelRatio(touches[i].clientX);
-        let posY = scaleByPixelRatio(touches[i].clientY);
-        updatePointerDownData(pointer, touches[i].identifier, posX, posY);
+    // --- Cleanup function ---
+    return () => {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
       }
-    });
-
-    window.addEventListener(
-      "touchmove",
-      (e) => {
-        const touches = e.targetTouches;
-        let pointer = pointers[0];
-        for (let i = 0; i < touches.length; i++) {
-          let posX = scaleByPixelRatio(touches[i].clientX);
-          let posY = scaleByPixelRatio(touches[i].clientY);
-          updatePointerMoveData(pointer, posX, posY, pointer.color);
-        }
-      },
-      false,
-    );
-
-    window.addEventListener("touchend", (e) => {
-      const touches = e.changedTouches;
-      let pointer = pointers[0];
-      for (let i = 0; i < touches.length; i++) {
-        updatePointerUpData(pointer);
+      if (autoSplatIntervalId.current) {
+        clearInterval(autoSplatIntervalId.current);
       }
-    });
-
-    updateFrame();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     SIM_RESOLUTION,
@@ -1254,6 +1210,8 @@ function SplashCursor({
     COLOR_UPDATE_SPEED,
     BACK_COLOR,
     TRANSPARENT,
+    AUTO_SPLAT_INTERVAL,
+    AUTO_SPLAT_RADIUS,
   ]);
 
   return (
