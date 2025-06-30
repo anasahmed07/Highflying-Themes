@@ -1,3 +1,4 @@
+import dotenv
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -8,6 +9,7 @@ from auth.routes import auth_router
 from contact.routes import contact_router
 from database import connect_to_mongo, close_mongo_connection
 
+dotenv.load_dotenv()
 # Lifespan context manager for database connections
 @asynccontextmanager
 async def lifespan(app: FastAPI):
