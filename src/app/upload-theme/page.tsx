@@ -1,4 +1,7 @@
-export default function UploadThemePage() {
+'use client'
+import ProtectedRoute from '@/components/ProtectedRoute';
+
+function UploadThemeContent() {
   return (
     <div className="min-h-screen py-16 px-4">
       <div className="max-w-4xl mx-auto">
@@ -174,6 +177,14 @@ export default function UploadThemePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function UploadThemePage() {
+  return (
+    <ProtectedRoute>
+      <UploadThemeContent />
+    </ProtectedRoute>
   );
 }
   

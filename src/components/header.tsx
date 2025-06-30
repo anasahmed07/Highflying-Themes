@@ -1,10 +1,15 @@
 'use client'
-import { MenuIcon, X } from "lucide-react"
+import { MenuIcon, X, User, LogOut, ChevronDown } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import Image from "next/image"
+import { useState, useRef, useEffect } from "react"
+import { useAuth } from "@/contexts/AuthContext"
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const { user, loading, logout } = useAuth();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -13,6 +18,30 @@ const Header = () => {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+
+  const toggleUserDropdown = () => {
+    setIsUserDropdownOpen(!isUserDropdownOpen);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setIsUserDropdownOpen(false);
+    closeMobileMenu();
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 bg-[#060606]/95 backdrop-blur-sm shadow-lg shadow-black/20">
@@ -55,20 +84,76 @@ const Header = () => {
             </Link>
           </nav>
 
-          {/* Desktop Login/Signup */}
+          {/* Desktop Auth */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              href="/login-signup?tab=login"
-              className="px-4 py-2 text-gray-300 hover:text-white transition-colors duration-200 font-medium"
-            >
-              Sign In
-            </Link>
-            <Link 
-              href="/login-signup?tab=signup"
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 font-medium"
-            >
-              Sign Up
-            </Link>
+            {loading ? (
+              <div className="text-gray-400">Loading...</div>
+            ) : user ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={toggleUserDropdown}
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-white transition-colors duration-200 font-medium rounded-lg hover:bg-gray-800"
+                >
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-emerald-600 flex items-center justify-center">
+                    {user.profile_image ? (
+                      <Image 
+                        src={user.profile_image} 
+                        alt={user.username}
+                        className="w-full h-full object-cover"
+                        width={32}
+                        height={32}
+                        onError={(e) => {
+                          // Hide the image if it fails to load, showing the fallback
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : null}
+                    {(!user.profile_image || user.profile_image === '') && (
+                      <span className="text-white text-sm font-medium">
+                        {user.username.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <span>{user.username}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${isUserDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-[#1E1E1E] border border-gray-700 rounded-lg shadow-lg py-2">
+                    <Link
+                      href="/profile"
+                      className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
+                      onClick={() => setIsUserDropdownOpen(false)}
+                    >
+                      <User className="w-4 h-4" />
+                      <span>Profile</span>
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center space-x-2 w-full px-4 py-2 text-left text-gray-300 hover:text-red-400 hover:bg-gray-700 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link 
+                  href="/login-signup?tab=login"
+                  className="px-4 py-2 text-gray-300 hover:text-white transition-colors duration-200 font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link 
+                  href="/login-signup?tab=signup"
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 font-medium"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -118,22 +203,65 @@ const Header = () => {
                 Contact
               </Link>
               
-              {/* Mobile Login/Signup */}
+              {/* Mobile Auth */}
               <div className="pt-4 border-t border-gray-700 space-y-3">
-                <Link 
-                  href="/login-signup?tab=login"
-                  className="block text-gray-300 hover:text-white transition-colors duration-200 font-medium py-2"
-                  onClick={closeMobileMenu}
-                >
-                  Sign In
-                </Link>
-                <Link 
-                  href="/login-signup?tab=signup"
-                  className="block w-full text-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 font-medium"
-                  onClick={closeMobileMenu}
-                >
-                  Sign Up
-                </Link>
+                {loading ? (
+                  <div className="text-gray-400 py-2">Loading...</div>
+                ) : user ? (
+                  <>
+                    <Link 
+                      href="/profile"
+                      className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-200 font-medium py-2"
+                      onClick={closeMobileMenu}
+                    >
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-emerald-600 flex items-center justify-center">
+                        {user.profile_image ? (
+                          <Image 
+                            src={user.profile_image} 
+                            alt={user.username}
+                            className="w-full h-full object-cover"
+                            width={32}
+                            height={32}
+                            onError={(e) => {
+                              // Hide the image if it fails to load, showing the fallback
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        ) : null}
+                        {(!user.profile_image || user.profile_image === '') && (
+                          <span className="text-white text-sm font-medium">
+                            {user.username.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <span>{user.username}</span>
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center space-x-2 w-full text-left text-gray-300 hover:text-red-400 transition-colors duration-200 font-medium py-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link 
+                      href="/login-signup?tab=login"
+                      className="block text-gray-300 hover:text-white transition-colors duration-200 font-medium py-2"
+                      onClick={closeMobileMenu}
+                    >
+                      Sign In
+                    </Link>
+                    <Link 
+                      href="/login-signup?tab=signup"
+                      className="block w-full text-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 font-medium"
+                      onClick={closeMobileMenu}
+                    >
+                      Sign Up
+                    </Link>
+                  </>
+                )}
               </div>
             </nav>
           </div>

@@ -3,7 +3,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import SplashCursor from '@/components/blocks/SplashCursor'
-
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
   title: "Highflying Themes",
@@ -18,10 +18,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className='bg-[#060606] text-white  max-w-7xl mx-auto font-mono'>
-      <SplashCursor />
-      <Header />
-      {children}
-      <Footer />
+        <AuthProvider>
+          <SplashCursor />
+          <Header />
+          {children}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

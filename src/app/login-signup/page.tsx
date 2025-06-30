@@ -1,10 +1,21 @@
 'use client'
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { X } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 function LoginSignupContent() {
   const searchParams = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
+  const { login, signup, loading, error, clearError } = useAuth();
+
+  // Form state
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    username: '',
+  });
 
   // Handle URL parameters for tab switching
   useEffect(() => {
@@ -16,12 +27,86 @@ function LoginSignupContent() {
     }
   }, [searchParams]);
 
+  // Only clear error when user manually changes tabs, not on mount
   const handleTabChange = (newTab: boolean) => {
     setIsLogin(newTab);
+    clearError();
     // Update URL without page reload
     const url = new URL(window.location.href);
     url.searchParams.set('tab', newTab ? 'login' : 'signup');
     window.history.replaceState({}, '', url.toString());
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error when user starts typing
+    if (error) {
+      clearError();
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearError();
+
+    // Get the redirect URL from search params
+    const redirectUrl = searchParams.get('redirect');
+
+    if (isLogin) {
+      // Login
+      try {
+        await login({
+          email: formData.email,
+          password: formData.password,
+        });
+        
+        // Redirect to the original URL if it exists and is safe, otherwise to profile
+        if (redirectUrl) {
+          // Validate the redirect URL to ensure it's safe
+          try {
+            const redirectUrlObj = new URL(redirectUrl, window.location.origin);
+            // Only allow redirects to our own domain
+            if (redirectUrlObj.origin === window.location.origin) {
+              window.location.href = redirectUrl;
+            } else {
+              window.location.href = '/profile';
+            }
+          } catch {
+            // If the URL is invalid, redirect to profile
+            window.location.href = '/profile';
+          }
+        } else {
+          window.location.href = '/profile';
+        }
+      } catch {
+        // Error is handled by the context
+      }
+    } else {
+      // Signup
+      if (formData.password !== formData.confirmPassword) {
+        // Handle password mismatch error
+        return;
+      }
+
+      try {
+        await signup({
+          email: formData.email,
+          username: formData.username,
+          password: formData.password,
+        });
+        
+        // For signup, redirect to profile by default since the user is new
+        // They will be redirected to profile by default
+        window.location.href = '/profile';
+      } catch {
+        // Error is handled by the context
+      }
+    }
   };
 
   return (
@@ -60,17 +145,35 @@ function LoginSignupContent() {
             </button>
           </div>
 
-          <form className="space-y-6">
+          {error && (
+            <div className="mb-6 p-4 bg-red-900/20 border border-red-500/50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <p className="text-red-400 text-sm">{error}</p>
+                <button
+                  onClick={clearError}
+                  className="text-red-400 hover:text-red-300 transition-colors ml-2"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
             {!isLogin && (
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                  Full Name
+                <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+                  Username
                 </label>
                 <input
                   type="text"
-                  id="name"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required={!isLogin}
                   className="w-full px-4 py-3 bg-[#0A0A0A] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-colors"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your username"
                 />
               </div>
             )}
@@ -82,6 +185,10 @@ function LoginSignupContent() {
               <input
                 type="email"
                 id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
                 className="w-full px-4 py-3 bg-[#0A0A0A] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-colors"
                 placeholder="your.email@example.com"
               />
@@ -94,6 +201,10 @@ function LoginSignupContent() {
               <input
                 type="password"
                 id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
                 className="w-full px-4 py-3 bg-[#0A0A0A] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-colors"
                 placeholder="Enter your password"
               />
@@ -107,9 +218,16 @@ function LoginSignupContent() {
                 <input
                   type="password"
                   id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required={!isLogin}
                   className="w-full px-4 py-3 bg-[#0A0A0A] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-colors"
                   placeholder="Confirm your password"
                 />
+                {formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  <p className="mt-1 text-red-400 text-sm">Passwords do not match</p>
+                )}
               </div>
             )}
 
@@ -136,6 +254,7 @@ function LoginSignupContent() {
                 <input
                   type="checkbox"
                   id="agree"
+                  required
                   className="mt-1 h-4 w-4 text-emerald-600 bg-[#0A0A0A] border-gray-600 rounded focus:ring-emerald-500"
                 />
                 <label htmlFor="agree" className="text-sm text-gray-300">
@@ -153,9 +272,10 @@ function LoginSignupContent() {
 
             <button
               type="submit"
-              className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 font-medium"
+              disabled={loading}
+              className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-800 disabled:cursor-not-allowed text-white rounded-lg transition-colors duration-200 font-medium"
             >
-              {isLogin ? 'Sign In' : 'Create Account'}
+              {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
             </button>
           </form>
 
