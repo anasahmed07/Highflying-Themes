@@ -1,7 +1,7 @@
 # Unified database module
 
 # Connection
-from .connection import connect_to_mongo, close_mongo_connection, get_database
+from .connection import connect_to_mongo, close_mongo_connection, get_database, test_connection
 
 # Auth operations
 from .auth import (
@@ -31,6 +31,7 @@ __all__ = [
     "connect_to_mongo",
     "close_mongo_connection", 
     "get_database",
+    "test_connection",
     # Auth operations
     "get_user_by_email",
     "create_user",
