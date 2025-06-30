@@ -1,6 +1,7 @@
 from typing import Optional
 from datetime import datetime
 import uuid
+import asyncio
 
 from .connection import get_database
 
@@ -8,12 +9,16 @@ from .connection import get_database
 # User collection operations
 async def get_user_by_email(email: str):
     """Get user by email from MongoDB."""
-    db = get_database()
-    if db is None:
+    try:
+        db = get_database()
+        if db is None:
+            return None
+        
+        user = await db.users.find_one({"email": email})
+        return user
+    except Exception as e:
+        print(f"Error in get_user_by_email: {e}")
         return None
-    
-    user = await db.users.find_one({"email": email})
-    return user
 
 
 async def create_user(email: str, username: str, hashed_password: str):

@@ -26,14 +26,12 @@ async def healthcheck():
 async def test_database():
     """Test database connection."""
     try:
-        from database import get_database
-        db = get_database()
-        if db is None:
-            return {"status": "error", "message": "Database not initialized"}
-        
-        # Test a simple operation without exposing data
-        await db.users.find_one({}, {"_id": 1})
-        return {"status": "success", "message": "Database connected successfully"}
+        from database import test_connection
+        is_connected = await test_connection()
+        if is_connected:
+            return {"status": "success", "message": "Database connected successfully"}
+        else:
+            return {"status": "error", "message": "Database connection failed"}
     except Exception as e:
         return {"status": "error", "message": f"Database error: {str(e)}"}
 

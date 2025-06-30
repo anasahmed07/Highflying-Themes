@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from typing import Optional
+import asyncio
 
 # MongoDB configuration
 MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
@@ -23,7 +24,11 @@ def get_client() -> AsyncIOMotorClient:
             maxIdleTimeMS=30000,  # Close idle connections after 30 seconds
             serverSelectionTimeoutMS=5000,  # Faster timeout
             connectTimeoutMS=5000,
-            socketTimeoutMS=5000
+            socketTimeoutMS=5000,
+            # Serverless-specific settings
+            retryWrites=False,
+            retryReads=False,
+            directConnection=True
         )
     return _client
 
@@ -35,6 +40,17 @@ def get_database():
         client = get_client()
         _database = client[DATABASE_NAME]
     return _database
+
+
+async def test_connection():
+    """Test database connection safely for serverless."""
+    try:
+        db = get_database()
+        # Use a simple ping operation
+        await db.command("ping")
+        return True
+    except Exception:
+        return False
 
 
 async def connect_to_mongo():
