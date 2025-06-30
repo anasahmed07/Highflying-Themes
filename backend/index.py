@@ -1,30 +1,19 @@
 import dotenv
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 import os
 
 # Import routers
 from auth.routes import auth_router
 from contact.routes import contact_router
-from database import connect_to_mongo, close_mongo_connection
 
 dotenv.load_dotenv()
-# Lifespan context manager for database connections
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup
-    await connect_to_mongo()
-    yield
-    # Shutdown
-    await close_mongo_connection()
 
 # Initialize FastAPI app
 app = FastAPI(
     title="Highflying Themes API",
     description="API for Highflying Themes platform",
-    version="1.0.0",
-    lifespan=lifespan
+    version="1.0.0"
 )
 
 health_check_router = APIRouter()
@@ -32,6 +21,21 @@ health_check_router = APIRouter()
 async def healthcheck():
     """Root endpoint for health check."""
     return {"message": "Highflying Themes API is running!"}
+
+@health_check_router.get("/test-db")
+async def test_database():
+    """Test database connection."""
+    try:
+        from database import get_database
+        db = get_database()
+        if db is None:
+            return {"status": "error", "message": "Database not initialized"}
+        
+        # Test a simple operation without exposing data
+        await db.users.find_one({}, {"_id": 1})
+        return {"status": "success", "message": "Database connected successfully"}
+    except Exception as e:
+        return {"status": "error", "message": f"Database error: {str(e)}"}
 
 # CORS middleware for frontend integration
 # Get allowed origins from environment variable

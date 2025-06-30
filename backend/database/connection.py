@@ -6,27 +6,48 @@ from typing import Optional
 MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "highflying_themes")
 
-# Database client
-client: Optional[AsyncIOMotorClient] = None
-database = None
+# Database client - lazy initialization for serverless
+_client: Optional[AsyncIOMotorClient] = None
+_database = None
 
 
-async def connect_to_mongo():
-    """Connect to MongoDB."""
-    global client, database
-    client = AsyncIOMotorClient(MONGODB_URL)
-    database = client[DATABASE_NAME]
-    print("Connected to MongoDB")
-
-
-async def close_mongo_connection():
-    """Close MongoDB connection."""
-    global client
-    if client:
-        client.close()
-        print("Disconnected from MongoDB")
+def get_client() -> AsyncIOMotorClient:
+    """Get MongoDB client with lazy initialization."""
+    global _client
+    if _client is None:
+        # Configure connection pooling for serverless
+        _client = AsyncIOMotorClient(
+            MONGODB_URL,
+            maxPoolSize=1,  # Smaller pool for serverless
+            minPoolSize=0,  # No minimum pool for serverless
+            maxIdleTimeMS=30000,  # Close idle connections after 30 seconds
+            serverSelectionTimeoutMS=5000,  # Faster timeout
+            connectTimeoutMS=5000,
+            socketTimeoutMS=5000
+        )
+    return _client
 
 
 def get_database():
-    """Get database instance."""
-    return database 
+    """Get database instance with lazy initialization."""
+    global _database
+    if _database is None:
+        client = get_client()
+        _database = client[DATABASE_NAME]
+    return _database
+
+
+async def connect_to_mongo():
+    """Connect to MongoDB (for compatibility, but not needed in serverless)."""
+    # In serverless, connections are lazy-initialized
+    get_database()
+    print("MongoDB client initialized")
+
+
+async def close_mongo_connection():
+    """Close MongoDB connection (for compatibility)."""
+    global _client
+    if _client:
+        _client.close()
+        _client = None
+        print("MongoDB client closed") 

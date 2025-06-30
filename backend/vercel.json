@@ -11,5 +11,10 @@
       "src": "/(.*)",
       "dest": "/index.py"
     }
-  ]
+  ],
+  "functions": {
+    "index.py": {
+      "maxDuration": 30
+    }
+  }
 }
