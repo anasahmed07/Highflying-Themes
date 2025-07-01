@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 
 interface UserProfile {
   _id: string;
@@ -29,10 +30,12 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
     <main className="max-w-xl mx-auto py-10 px-4">
       <div className="flex flex-col items-center gap-4">
         {profile.profile_image && (
-          <img
+          <Image
             src={profile.profile_image}
             alt={profile.username + "'s profile image"}
             className="w-32 h-32 rounded-full object-cover border"
+            width={128}
+            height={128}
           />
         )}
         <h1 className="text-3xl font-bold">{profile.username}</h1>

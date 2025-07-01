@@ -18,7 +18,7 @@ const PrivacyPolicyPage = () => {
 
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-300 mb-8">
-              Welcome to Switch Theme ("we," "us," "our"). This Privacy Policy explains how we collect, 
+              Welcome to Switch Theme (&quot;we,&quot; &quot;us,&quot; &quot;our&quot;). This Privacy Policy explains how we collect, 
               use, disclose, and safeguard your information when you visit our website, interact with 
               our services, and upload content.
             </p>
@@ -191,7 +191,7 @@ const PrivacyPolicyPage = () => {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-light text-white mb-4">9. Children's Privacy</h2>
+              <h2 className="text-2xl font-light text-white mb-4">9. Children&apos;s Privacy</h2>
               <p className="text-gray-300">
                 Our platform is not intended for users under the age of 13. We do not knowingly collect 
                 data from children. If we become aware of any such data, we will take steps to remove it immediately.
@@ -209,7 +209,7 @@ const PrivacyPolicyPage = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-light text-white mb-4">11. Policy Changes</h2>
               <p className="text-gray-300">
-                We may update this Privacy Policy from time to time. The "Last Modified" date at the top 
+                We may update this Privacy Policy from time to time. The &quot;Last Modified&quot; date at the top 
                 of this page indicates when it was last updated. Changes will take effect immediately 
                 upon posting on this page.
               </p>
@@ -228,7 +228,7 @@ const PrivacyPolicyPage = () => {
 
             <div className="border-t border-gray-700 pt-8 mt-8">
               <p className="text-gray-300 text-center">
-                Thank you for using Switch Theme. We're committed to keeping your data safe and your experience enjoyable.
+                Thank you for using Switch Theme. We&apos;re committed to keeping your data safe and your experience enjoyable.
               </p>
             </div>
           </div>

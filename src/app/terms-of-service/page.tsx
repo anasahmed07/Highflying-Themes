@@ -83,7 +83,7 @@ const TermsOfServicePage = () => {
                 <li>NSFW content must be clearly marked using the provided NSFW checkbox.</li>
                 <li>Content that depicts or implies sexual arousal is considered NSFW.</li>
                 <li>Nudity (real or animated) is allowed, but explicit sex acts (pornographic content) are strictly prohibited.</li>
-                <li>Absolutely no content involving individuals under 18, whether real or fictional. This includes any "Lolita" or similar material, even if age disclaimers are present.</li>
+                <li>Absolutely no content involving individuals under 18, whether real or fictional. This includes any &apos;Lolita&apos; or similar material, even if age disclaimers are present.</li>
               </ul>
               <p className="text-gray-300">
                 Violation of these rules will result in immediate account suspension or termination.
@@ -112,7 +112,7 @@ const TermsOfServicePage = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-light text-white mb-4">5. Account Termination</h2>
               <p className="text-gray-300">
-                Switch Theme reserves the right to suspend or permanently terminate any user's account 
+                Switch Theme reserves the right to suspend or permanently terminate any user&apos;s account 
                 at any time and without explanation, particularly in the event of rule violations.
               </p>
             </section>

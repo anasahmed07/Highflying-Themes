@@ -9,13 +9,13 @@ const FAQPage = () => {
     },
     {
       question: "How do I use this site, and what are the QR codes for?",
-      answer: "Use Anemone to download themes/splashes directly to your console via QR codes on item pages. Alternatively, download the ZIP file and place it in your SD card's themes or splashes folder."
+      answer: "Use Anemone to download themes/splashes directly to your console via QR codes on item pages. Alternatively, download the ZIP file and place it in your SD card&apos;s themes or splashes folder."
     },
     {
       question: "I uploaded something awaiting approval. How do I get accepted?",
       answer: `New uploads require admin approval for content control.
 
-Asking won't speed up approval.
+Asking won&apos;t speed up approval.
 
 If your first 5 uploads are accepted, you gain Trusted status, enabling auto-approval for future uploads.
 
@@ -42,7 +42,7 @@ Consequences:
       answer: `Reasons include:
 
 • Uploading multiple versions of the same theme (spam).
-• Submitting 5+ themes too quickly (hurts new creators' visibility).
+• Submitting 5+ themes too quickly (hurts new creators&apos; visibility).
 • Uploading rule-breaking content.
 
 Contact support via our Discord (header link) if this seems erroneous.`
@@ -54,7 +54,7 @@ Contact support via our Discord (header link) if this seems erroneous.`
 • NSFW:[all/safe/sketchy/nsfw]
 • Tag:[tag name]
 • User:[username]
-• Quotation marks ("exact phrase") for precise results.`
+• Quotation marks (&quot;exact phrase&quot;) for precise results.`
     },
     {
       question: "How can I change my avatar?",
@@ -102,7 +102,7 @@ For other issues, join our Discord (header link).`
 
         <div className="mt-12 text-center">
           <p className="text-gray-300 mb-6">
-            Still have questions? We're here to help!
+            Still have questions? We&apos;re here to help!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
