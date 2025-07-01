@@ -4,14 +4,16 @@ A FastAPI-based API designed for serverless deployment on Vercel with MongoDB in
 
 ## Features
 
-- 🔐 JWT-based authentication
+- 🔑 JWT-based authentication
 - 👤 User registration and login
 - 🔒 Password hashing with bcrypt
 - 📧 Password reset functionality (placeholder)
 - 👤 Profile management
 - 🛡️ CORS support for frontend integration
 - ☁️ Vercel serverless deployment ready
-- 🗄️ MongoDB integration with Motor (async)
+- 📄 MongoDB integration with **pymongo** (synchronous)
+- 📝 Pydantic models for request/response validation
+- 🪵 Structured logging and error handling
 
 ## Project Structure
 
@@ -21,19 +23,25 @@ backend/
 ├── vercel.json           # Vercel configuration
 ├── pyproject.toml        # Project dependencies
 ├── env.example           # Environment variables template
-├── auth/                 # Authentication module
-│   ├── __init__.py
-│   ├── models.py         # Pydantic models
-│   ├── database.py       # MongoDB operations
-│   ├── utils.py          # Authentication utilities
-│   └── routes.py         # API routes
+├── database/             # Database connection and CRUD logic
+│   ├── connection.py     # MongoDB connection (pymongo)
+│   ├── auth.py           # User CRUD and token blacklist
+│   ├── contact.py        # Contact message CRUD
+│   └── ...
+├── models/               # Pydantic models for validation (not DB models)
+│   ├── auth.py           # User, token, and profile schemas
+│   ├── contact.py        # Contact message schemas
+│   └── ...
+├── routes/               # FastAPI routers
+│   ├── auth/             # Auth endpoints
+│   ├── contact/          # Contact endpoints
+│   └── health_check/     # Health check endpoint
 └── README.md
 ```
 
 ## API Endpoints
 
 ### Authentication
-
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/auth/signup` | Register a new user |
@@ -45,11 +53,16 @@ backend/
 | `DELETE` | `/auth/delete-account` | Delete user account |
 | `GET` | `/auth/verify-token` | Verify JWT token validity |
 
-### Health Check
+### Contact
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/contact/submit` | Submit a contact message |
 
+### Health Check
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/` | API health check |
+| `GET` | `/test-db` | Test database connection |
 
 ## Request/Response Examples
 
@@ -57,7 +70,6 @@ backend/
 ```bash
 POST /auth/signup
 Content-Type: application/json
-
 {
   "email": "user@example.com",
   "username": "johndoe",
@@ -69,17 +81,15 @@ Content-Type: application/json
 ```bash
 POST /auth/login
 Content-Type: application/json
-
 {
   "email": "user@example.com",
   "password": "securepassword123"
 }
 ```
-
 Response:
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "access_token": "...",
   "token_type": "bearer"
 }
 ```
@@ -87,7 +97,7 @@ Response:
 ### Protected Endpoint
 ```bash
 GET /auth/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Authorization: Bearer <token>
 ```
 
 ## Local Development
@@ -98,43 +108,35 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 - uv (recommended) or pip
 
 ### Installation
-
 1. Clone the repository
 2. Navigate to the backend directory:
    ```bash
    cd backend
    ```
-
 3. Install dependencies:
    ```bash
    uv sync
    # or
    pip install -r requirements.txt
    ```
-
 4. Set up environment variables:
    ```bash
    cp env.example .env
    # Edit .env with your configuration
    ```
-
 5. Start MongoDB (if using local):
    ```bash
    # Using Docker
    docker run -d -p 27017:27017 --name mongodb mongo:latest
-   
    # Or install MongoDB locally
    ```
-
 6. Run the development server:
    ```bash
    python index.py
    ```
-
 The API will be available at `http://localhost:8000`
 
 ### API Documentation
-
 Once running, visit:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
@@ -147,31 +149,27 @@ Once running, visit:
 - MongoDB Atlas account (recommended for production)
 
 ### Deployment Steps
-
 1. Install Vercel CLI:
    ```bash
    npm i -g vercel
    ```
-
 2. Login to Vercel:
    ```bash
    vercel login
    ```
-
 3. Deploy from the backend directory:
    ```bash
    cd backend
    vercel
    ```
-
 4. Set environment variables in Vercel dashboard:
    - `SECRET_KEY`: Your secret key for JWT signing
    - `ACCESS_TOKEN_EXPIRE_MINUTES`: Token expiration time (default: 30)
    - `MONGODB_URL`: Your MongoDB connection string
    - `DATABASE_NAME`: Your database name
+   - `ALLOWED_ORIGINS`: CORS allowed origins
 
-### Environment Variables
-
+## Environment Variables
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `SECRET_KEY` | JWT signing secret | `your-secret-key-change-in-production` |
@@ -185,7 +183,7 @@ Once running, visit:
 ### Local Development
 1. Install MongoDB locally or use Docker
 2. Create a database named `switch_theme`
-3. The API will automatically create the `users` collection
+3. The API will automatically create the `users` and `contact_messages` collections
 
 ### Production (MongoDB Atlas)
 1. Create a MongoDB Atlas account
@@ -193,27 +191,39 @@ Once running, visit:
 3. Get your connection string
 4. Set `MONGODB_URL` in your environment variables
 
+## Models Directory
+
+- The `models/` directory contains **Pydantic models** for request/response validation.
+- These are used in route handlers to validate and document API data.
+- They are not database models or schemas.
+
+## Logging & Error Handling
+
+- The backend uses Python's `logging` module for structured logs.
+- Only high-level INFO logs and all ERROR/WARNING logs are kept by default.
+- All database operations are wrapped in try/except blocks for robust error handling.
+
+## Troubleshooting
+
+### bcrypt/passlib AttributeError
+If you see an error like:
+```
+AttributeError: module 'bcrypt' has no attribute '__about__'
+```
+- Upgrade both `bcrypt` and `passlib` to the latest versions:
+  ```bash
+  pip install --upgrade bcrypt passlib
+  ```
+- If the error persists, try downgrading `bcrypt` to version 4.0.1:
+  ```bash
+  pip install 'bcrypt==4.0.1'
+  ```
+- This warning is usually harmless if password hashing/verification still works.
+
 ## Security Considerations
 
-### Production Checklist
-
-- [ ] Change the default `SECRET_KEY` to a strong, random value
-- [ ] Configure `ALLOWED_ORIGINS` to only allow your frontend domain
-- [ ] Use MongoDB Atlas or a secure MongoDB instance
-- [ ] Implement rate limiting
-- [ ] Add request validation and sanitization
-- [ ] Set up proper logging and monitoring
-- [ ] Implement email verification for new accounts
-- [ ] Add two-factor authentication (2FA)
-- [ ] Set up database indexes for performance
-
-### Current Limitations
-
-- Password reset functionality is a placeholder
-- No email verification
-- No rate limiting
-- No audit logging
-- No database indexes (add for production)
+- Change the default `SECRET_KEY` to a strong, random value before deploying to production.
+- Use environment variables for all secrets and database credentials.
 
 ## Adding New Modules
 

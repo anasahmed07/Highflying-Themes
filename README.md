@@ -19,16 +19,38 @@
 ## 🚀 Tech Stack
 
 - **Frontend**: [Next.js 15](https://nextjs.org/) (App Router, TypeScript)  
-- **Backend**: MongoDB, NextAuth.js for authentication  
+- **Backend**: [FastAPI (Python)](https://fastapi.tiangolo.com/) with MongoDB (see below)  
 - **Styling**: TailwindCSS  
 - **Hosting**: Vercel  
 - **QR Code Generation**: *(To be implemented with a built-in solution.)*  
 
 ---
 
+## 🖥️ Project Structure
+
+- `src/` — Frontend (Next.js)  
+- `backend/` — Backend API (FastAPI, Python, MongoDB)  
+
+---
+
+## 📦 Backend API (FastAPI)
+
+The backend is a FastAPI application (Python 3.13+) with MongoDB integration. It provides all authentication, user, and theme management endpoints.
+
+- **How to run the backend locally:**
+  1. `cd backend`
+  2. Install dependencies: `uv sync` or `pip install -r requirements.txt`
+  3. Copy and edit environment variables: `cp env.example .env`
+  4. Run: `python index.py`
+  5. API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+- **API details and endpoints:** See [`backend/README.md`](backend/README.md)
+
+---
+
 ## 📸 Screenshots
 
-![Switch Themes Banner](https://github.com/anasahmed07/Highflying-Themes/blob/main/public/banner.png)
+![Switch Themes Banner](https://github.com/anasahmed07/Switch-Theme/blob/main/public/banner.png)
 
 ---
 
@@ -36,7 +58,7 @@
 
 1. **Clone the Repository**  
    ```bash
-   git clone https://github.com/yourusername/highflying-themes.git
+   git clone https://github.com/yourusername/switch-theme.git
    cd switch-themes
    ```
 2. **Install Dependencies**  
@@ -73,7 +95,7 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ## 📢 Contact & Community
 
-- 🌐 **Website**: [SwitchTheme](https://www.highflyingthemes.com)  
-- 🎮 **Discord**: [Join Here](https://discord.gg/BupA4phdVC)  
+- 🌐 **Website**: [SwitchTheme](https://www.switchthemes.vercel.app)  
+- 👾 **Discord**: [Join Here](https://discord.gg/BupA4phdVC)  
 - 📺 **Twitch**: [CallMeSpeed](https://www.twitch.tv/CallMeSpeed)  
-- 📰 **Reddit**: [SwitchTheme](https://www.reddit.com/r/HighflyingThemes)
+- 📰 **Reddit**: [SwitchTheme](https://www.reddit.com/r/SwitchTheme)
