@@ -515,7 +515,7 @@ class ImageTrailVariant4 {
 
     let dx = this.mousePos.x - this.cacheMousePos.x;
     let dy = this.mousePos.y - this.cacheMousePos.y;
-    let distance = Math.sqrt(dx * dx + dy * dy);
+    const distance = Math.sqrt(dx * dx + dy * dy);
     if (distance !== 0) {
       dx /= distance;
       dy /= distance;
@@ -668,7 +668,7 @@ class ImageTrailVariant5 {
     if (angle > 90 && angle <= 270) angle += 180;
     const isMovingClockwise = angle >= this.lastAngle;
     this.lastAngle = angle;
-    let startAngle = isMovingClockwise ? angle - 10 : angle + 10;
+    const startAngle = isMovingClockwise ? angle - 10 : angle + 10;
     const distance = Math.sqrt(dx * dx + dy * dy);
     if (distance !== 0) {
       dx /= distance;

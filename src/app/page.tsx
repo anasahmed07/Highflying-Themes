@@ -40,14 +40,14 @@ export default function HomePage() {
         <div className="absolute inset-0 z-10">
           <ImageTrail
             items={[
-              'https://switchthemes.vercel.app/1.png',
-              'https://switchthemes.vercel.app/2.png',
-              'https://switchthemes.vercel.app/3.png',
-              'https://switchthemes.vercel.app/4.png',
-              'https://switchthemes.vercel.app/5.png',
-              'https://switchthemes.vercel.app/6.png',
-              'https://switchthemes.vercel.app/7.png',
-              'https://switchthemes.vercel.app/8.png',
+              'https://switchthemes.vercel.app/theme-images/1.png',
+              'https://switchthemes.vercel.app/theme-images/2.png',
+              'https://switchthemes.vercel.app/theme-images/3.png',
+              'https://switchthemes.vercel.app/theme-images/4.png',
+              'https://switchthemes.vercel.app/theme-images/5.png',
+              'https://switchthemes.vercel.app/theme-images/6.png',
+              'https://switchthemes.vercel.app/theme-images/7.png',
+              'https://switchthemes.vercel.app/theme-images/8.png',
             ]}
             variant={3}
           />
