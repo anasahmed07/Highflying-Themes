@@ -61,8 +61,6 @@ markupsafe==3.0.2
     # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
-motor==3.7.1
-    # via backend (pyproject.toml)
 passlib==1.7.4
     # via backend (pyproject.toml)
 pillow==11.2.1
@@ -85,9 +83,7 @@ pydantic-settings==2.10.1
 pygments==2.19.2
     # via rich
 pymongo==4.13.2
-    # via
-    #   backend (pyproject.toml)
-    #   motor
+    # via backend (pyproject.toml)
 python-dotenv==1.1.1
     # via
     #   backend (pyproject.toml)

@@ -65,7 +65,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     token = credentials.credentials
     
     # Check if token is blacklisted
-    if await is_token_blacklisted(token):
+    if is_token_blacklisted(token):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has been invalidated",
@@ -82,7 +82,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     return token_data
 
 
-async def logout_user(token: str, email: str):
+def logout_user(token: str, email: str):
     """Logout user by blacklisting their token."""
     try:
         # Decode token to get expiration
@@ -94,12 +94,12 @@ async def logout_user(token: str, email: str):
             expires_at = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         
         # Add token to blacklist
-        await add_token_to_blacklist(token, email, expires_at)
+        add_token_to_blacklist(token, email, expires_at)
         return True
-    except JWTError:
+    except Exception:
         return False
 
 
-async def invalidate_user_tokens(email: str):
+def invalidate_user_tokens(email: str):
     """Invalidate all tokens for a user (used when account is deactivated)."""
-    return await blacklist_user_tokens(email) 
+    return blacklist_user_tokens(email) 

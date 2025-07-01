@@ -1,48 +1,24 @@
-import dotenv
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
-
-# Import routers
-from auth.routes import auth_router
-from contact.routes import contact_router
+import dotenv
+from routes.health_check import health_check_router      # Import routers
+from routes.auth import auth_router
+from routes.contact import contact_router
 
 dotenv.load_dotenv()
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Highflying Themes API",
-    description="API for Highflying Themes platform",
+    title="Switch Theme API",
+    description="API for Switch Theme platform",
     version="1.0.0"
 )
 
-health_check_router = APIRouter()
-@health_check_router.get("/")
-async def healthcheck():
-    """Root endpoint for health check."""
-    return {"message": "Highflying Themes API is running!"}
-
-@health_check_router.get("/test-db")
-async def test_database():
-    """Test database connection."""
-    try:
-        from database import test_connection
-        is_connected = await test_connection()
-        if is_connected:
-            return {"status": "success", "message": "Database connected successfully"}
-        else:
-            return {"status": "error", "message": "Database connection failed"}
-    except Exception as e:
-        return {"status": "error", "message": f"Database error: {str(e)}"}
-
-# CORS middleware for frontend integration
-# Get allowed origins from environment variable
-allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
-allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
-
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,  # Use environment variable
+    allow_origins=os.getenv("ALLOWED_ORIGINS").split(","),  # Use environment variable
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],

@@ -77,7 +77,7 @@ export default function ThemesPage() {
       <main className="py-16 px-4">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mix-blend-difference mb-8">
             <h1 className="text-4xl font-light text-white mb-4">Browse Themes</h1>
             <p className="text-gray-300 max-w-2xl">
               Discover thousands of custom themes created by our community. 
@@ -179,7 +179,7 @@ export default function ThemesPage() {
           </div>
 
           {/* Results Info */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="mix-blend-difference flex items-center justify-between mb-6">
             <p className="text-gray-300">
               Showing {((currentPage - 1) * themesPerPage) + 1} - {Math.min(currentPage * themesPerPage, themes.length)} of {themes.length} themes
             </p>
@@ -199,7 +199,7 @@ export default function ThemesPage() {
       </main>
       
       {/* Pagination */}
-      <section className="py-16">
+      <section className="mix-blend-difference py-16">
         <div className="flex justify-center gap-6 sm:gap-14">
           <button
             className="flex items-center text-sm hover:text-gray-400 disabled:cursor-not-allowed disabled:opacity-50"

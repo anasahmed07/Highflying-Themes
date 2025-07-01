@@ -1,35 +1,40 @@
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import MongoClient
 import os
 from typing import Optional
-import asyncio
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # MongoDB configuration
 MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
-DATABASE_NAME = os.getenv("DATABASE_NAME", "highflying_themes")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "switch_theme")
 
 # Database client - lazy initialization for serverless
-_client: Optional[AsyncIOMotorClient] = None
+_client: Optional[MongoClient] = None
 _database = None
 
 
-def get_client() -> AsyncIOMotorClient:
+def get_client() -> MongoClient:
     """Get MongoDB client with lazy initialization."""
     global _client
     if _client is None:
-        # Configure connection pooling for serverless
-        _client = AsyncIOMotorClient(
-            MONGODB_URL,
-            maxPoolSize=1,  # Smaller pool for serverless
-            minPoolSize=0,  # No minimum pool for serverless
-            maxIdleTimeMS=30000,  # Close idle connections after 30 seconds
-            serverSelectionTimeoutMS=5000,  # Faster timeout
-            connectTimeoutMS=5000,
-            socketTimeoutMS=5000,
-            # Serverless-specific settings
-            retryWrites=False,
-            retryReads=False,
-            directConnection=True
-        )
+        try:
+            logger.info(f"Initializing MongoDB client")
+            _client = MongoClient(
+                MONGODB_URL,
+                maxPoolSize=10,
+                minPoolSize=0,
+                maxIdleTimeMS=30000,
+                serverSelectionTimeoutMS=5000,
+                connectTimeoutMS=5000,
+                socketTimeoutMS=5000,
+            )
+            logger.info("MongoDB client initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize MongoDB client: {e}")
+            raise
     return _client
 
 
@@ -37,33 +42,38 @@ def get_database():
     """Get database instance with lazy initialization."""
     global _database
     if _database is None:
-        client = get_client()
-        _database = client[DATABASE_NAME]
+        try:
+            client = get_client()
+            _database = client[DATABASE_NAME]
+            logger.info(f"Database '{DATABASE_NAME}' initialized")
+        except Exception as e:
+            logger.error(f"Failed to get database: {e}")
+            raise
     return _database
 
 
-async def test_connection():
+def test_connection():
     """Test database connection safely for serverless."""
     try:
         db = get_database()
-        # Use a simple ping operation
-        await db.command("ping")
+        db.command("ping")
+        logger.info("Database connection test successful")
         return True
-    except Exception:
+    except Exception as e:
+        logger.error(f"Database connection test failed: {e}")
         return False
 
 
-async def connect_to_mongo():
+def connect_to_mongo():
     """Connect to MongoDB (for compatibility, but not needed in serverless)."""
-    # In serverless, connections are lazy-initialized
     get_database()
-    print("MongoDB client initialized")
+    logger.info("MongoDB client initialized")
 
 
-async def close_mongo_connection():
+def close_mongo_connection():
     """Close MongoDB connection (for compatibility)."""
     global _client
     if _client:
         _client.close()
         _client = None
-        print("MongoDB client closed") 
+        logger.info("MongoDB client closed") 

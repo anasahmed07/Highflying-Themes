@@ -1,4 +1,4 @@
-# Highflying Themes API
+# Switch Theme API
 
 A FastAPI-based API designed for serverless deployment on Vercel with MongoDB integration.
 
@@ -177,14 +177,14 @@ Once running, visit:
 | `SECRET_KEY` | JWT signing secret | `your-secret-key-change-in-production` |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Token expiration time | `30` |
 | `MONGODB_URL` | MongoDB connection string | `mongodb://localhost:27017` |
-| `DATABASE_NAME` | Database name | `highflying_themes` |
+| `DATABASE_NAME` | Database name | `switch_theme` |
 | `ALLOWED_ORIGINS` | CORS allowed origins | `*` |
 
 ## MongoDB Setup
 
 ### Local Development
 1. Install MongoDB locally or use Docker
-2. Create a database named `highflying_themes`
+2. Create a database named `switch_theme`
 3. The API will automatically create the `users` collection
 
 ### Production (MongoDB Atlas)

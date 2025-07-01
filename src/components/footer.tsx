@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const Footer = () => {
@@ -6,7 +7,15 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <h3 className="text-xl font-light text-white mb-4">Highflying Themes</h3>
+            <div className="mb-4">
+              <Image
+                src={"/switch-theme-logo.svg"}
+                alt=""
+                width={140}
+                height={45}
+
+              />
+            </div>
             <p className="text-gray-300 text-sm leading-relaxed mb-4">
               A gentle community for Nintendo enthusiasts to share and discover custom themes 
               for their 3DS, 2DS, N3DS, and N2DS systems.
@@ -85,7 +94,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center">
           <p className="text-sm text-gray-400">
-            © 2024 Highflying Themes. All rights reserved. Made with ❤️ for the Nintendo community.
+            © 2024 Switch Theme. All rights reserved. Made with ❤️ for the Nintendo community.
           </p>
         </div>
       </div>

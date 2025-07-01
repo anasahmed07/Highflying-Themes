@@ -2,20 +2,20 @@ export default function AboutUsPage() {
   return (
     <div className="min-h-screen py-16 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="mix-blend-difference text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-light text-white mb-6">
-            About Highflying Themes
+            About Switch Theme
           </h1>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
             A gentle community for Nintendo enthusiasts to share and discover custom themes
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12 mb-16">
+        <div className="mix-blend-difference grid md:grid-cols-2 gap-12 mb-16">
           <div className="space-y-6">
             <h2 className="text-2xl font-light text-white mb-4">Our Mission</h2>
             <p className="text-gray-300 leading-relaxed">
-              We believe in the power of personalization. Highflying Themes was created to provide 
+              We believe in the power of personalization. Switch Theme was created to provide 
               a peaceful space where Nintendo fans can express their creativity through custom themes 
               for their 3DS, 2DS, N3DS, and N2DS systems.
             </p>

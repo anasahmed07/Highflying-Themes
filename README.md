@@ -1,4 +1,4 @@
-# 🎮 Highflying Themes
+# 🎮 Switch Theme
 
 **A platform for uploading, sharing, and downloading custom themes for Nintendo 3DS, 2DS, N3DS, and N2DS systems with CFW or Homebrew access.**  
 
@@ -28,7 +28,7 @@
 
 ## 📸 Screenshots
 
-![Highflying Themes Banner](https://github.com/anasahmed07/Highflying-Themes/blob/main/public/banner.png)
+![Switch Themes Banner](https://github.com/anasahmed07/Highflying-Themes/blob/main/public/banner.png)
 
 ---
 
@@ -37,7 +37,7 @@
 1. **Clone the Repository**  
    ```bash
    git clone https://github.com/yourusername/highflying-themes.git
-   cd highflying-themes
+   cd switch-themes
    ```
 2. **Install Dependencies**  
    ```bash
@@ -73,7 +73,7 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ## 📢 Contact & Community
 
-- 🌐 **Website**: [HighflyingThemes](https://www.highflyingthemes.com)  
+- 🌐 **Website**: [SwitchTheme](https://www.highflyingthemes.com)  
 - 🎮 **Discord**: [Join Here](https://discord.gg/BupA4phdVC)  
 - 📺 **Twitch**: [CallMeSpeed](https://www.twitch.tv/CallMeSpeed)  
-- 📰 **Reddit**: [HighflyingThemes](https://www.reddit.com/r/HighflyingThemes)
+- 📰 **Reddit**: [SwitchTheme](https://www.reddit.com/r/HighflyingThemes)

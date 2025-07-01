@@ -1,7 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Query, Request, UploadFile, File, Form
 from datetime import timedelta
-from typing import Optional
-import uuid
 from PIL import Image
 import io
 import base64
@@ -38,7 +36,7 @@ auth_router = APIRouter()
 async def signup(user_data: UserCreate):
     """Register a new user."""
     # Check if user already exists
-    existing_user = await get_user_by_email(user_data.email)
+    existing_user = get_user_by_email(user_data.email)
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -47,7 +45,7 @@ async def signup(user_data: UserCreate):
     
     # Hash password and create user
     hashed_password = get_password_hash(user_data.password)
-    user = await create_user(
+    user = create_user(
         email=user_data.email,
         username=user_data.username,
         hashed_password=hashed_password
@@ -72,7 +70,7 @@ async def signup(user_data: UserCreate):
 @auth_router.post("/login", response_model=Token)
 async def login(user_credentials: UserLogin):
     """Authenticate user and return access token."""
-    user = await get_user_by_email(user_credentials.email)
+    user = get_user_by_email(user_credentials.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -111,17 +109,16 @@ async def logout(request: Request, current_user: dict = Depends(get_current_user
     auth_header = request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.split(" ")[1]
-        success = await logout_user(token, current_user.email)
+        success = logout_user(token, current_user.email)
         if success:
             return {"message": "Successfully logged out"}
-    
     return {"message": "Logout successful"}
 
 
 @auth_router.get("/profile", response_model=UserResponse)
 async def get_profile(current_user: dict = Depends(get_current_user)):
     """Get current user profile."""
-    user = await get_user_by_email(current_user.email)
+    user = get_user_by_email(current_user.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -156,7 +153,7 @@ async def update_profile(
     current_user: dict = Depends(get_current_user)
 ):
     """Update user profile."""
-    user = await get_user_by_email(current_user.email)
+    user = get_user_by_email(current_user.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -175,7 +172,7 @@ async def update_profile(
     update_data = profile_data.dict(exclude_unset=True)
     
     # Update profile
-    success = await update_user_profile(current_user.email, update_data)
+    success = update_user_profile(current_user.email, update_data)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -183,7 +180,7 @@ async def update_profile(
         )
     
     # Get updated user
-    updated_user = await get_user_by_email(current_user.email)
+    updated_user = get_user_by_email(current_user.email)
     return UserResponse(
         _id=updated_user["_id"],
         email=updated_user["email"],
@@ -204,7 +201,7 @@ async def change_password(
     current_user: dict = Depends(get_current_user)
 ):
     """Change user password."""
-    user = await get_user_by_email(current_user.email)
+    user = get_user_by_email(current_user.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -228,7 +225,7 @@ async def change_password(
     
     # Update password
     hashed_new_password = get_password_hash(password_data.new_password)
-    success = await update_user(current_user.email, {"hashed_password": hashed_new_password})
+    success = update_user(current_user.email, {"hashed_password": hashed_new_password})
     
     if not success:
         raise HTTPException(
@@ -242,7 +239,7 @@ async def change_password(
 @auth_router.post("/reset-password")
 async def reset_password(password_data: PasswordReset):
     """Request password reset (placeholder for email functionality)."""
-    user = await get_user_by_email(password_data.email)
+    user = get_user_by_email(password_data.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -270,7 +267,7 @@ async def delete_account(
     current_user: dict = Depends(get_current_user)
 ):
     """Delete user account (soft delete by default, hard delete if specified)."""
-    user = await get_user_by_email(current_user.email)
+    user = get_user_by_email(current_user.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -286,14 +283,14 @@ async def delete_account(
     
     if hard_delete:
         # Hard delete - permanently remove from database
-        success = await hard_delete_user(current_user.email)
+        success = hard_delete_user(current_user.email)
         message = "Account permanently deleted"
     else:
         # Soft delete - set is_active to False and invalidate all tokens
-        success = await soft_delete_user(current_user.email)
+        success = soft_delete_user(current_user.email)
         if success:
             # Invalidate all tokens for this user
-            await invalidate_user_tokens(current_user.email)
+            invalidate_user_tokens(current_user.email)
         message = "Account deactivated (soft delete) - all tokens invalidated"
     
     if not success:
@@ -308,7 +305,7 @@ async def delete_account(
 @auth_router.get("/verify-token")
 async def verify_token_endpoint(current_user: dict = Depends(get_current_user)):
     """Verify if the current token is valid."""
-    user = await get_user_by_email(current_user.email)
+    user = get_user_by_email(current_user.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -333,7 +330,7 @@ async def upload_profile_image(
     current_user: dict = Depends(get_current_user)
 ):
     """Upload a new profile image."""
-    user = await get_user_by_email(current_user.email)
+    user = get_user_by_email(current_user.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -403,7 +400,7 @@ async def upload_profile_image(
         image_data_url = f"data:image/jpeg;base64,{image_base64}"
         
         # Update user profile with image data
-        success = await update_user_profile(current_user.email, {"profile_image": image_data_url})
+        success = update_user_profile(current_user.email, {"profile_image": image_data_url})
         
         if not success:
             raise HTTPException(

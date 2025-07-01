@@ -1,4 +1,5 @@
 import ThemeCard from "@/components/themeCard";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -6,10 +7,14 @@ export default function HomePage() {
     <>
       <main className="h-[80vh]">
         <div className="flex flex-col items-center justify-center h-full">
-          <h1 className="text-6xl font-light font-sans text-center text-white mb-6">
-            Highflying Themes
-          </h1>
-          <p className="text-xl text-center text-gray-300 mb-8 max-w-2xl leading-relaxed">
+          <Image
+            src={"/switch-theme-logo.svg"}
+            alt="/switch-theme-logo"
+            height={140}
+            width={300}
+            className="mb-6 mix-blend-difference"
+          />
+          <p className="mix-blend-difference text-xl text-center text-gray-300 mb-8 max-w-2xl leading-relaxed">
             Discover, create, and share beautiful custom themes for your Nintendo handheld
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
@@ -28,7 +33,7 @@ export default function HomePage() {
       </main>
 
       <section className="py-16">
-        <div className="text-center mb-12">
+        <div className="mix-blend-difference text-center mb-12">
           <h2 className="text-3xl font-light text-white mb-4">
             Featured Themes
           </h2>
@@ -44,7 +49,7 @@ export default function HomePage() {
       </section>
 
       <section className="py-16">
-        <div className="text-center mb-12">
+        <div className="mix-blend-difference text-center mb-12">
           <h2 className="text-3xl font-light text-white mb-4">
             Latest Themes
           </h2>
@@ -63,7 +68,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-light text-white mb-4">
-              Why Choose Highflying Themes?
+              Why Choose Switch Theme?
             </h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
               Join thousands of Nintendo enthusiasts in our growing community
@@ -112,10 +117,10 @@ export default function HomePage() {
 
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-light text-white mb-6">
+          <h2 className="mix-blend-difference text-3xl font-light text-white mb-6">
             Ready to Get Started?
           </h2>
-          <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+          <p className="mix-blend-difference text-gray-300 mb-8 max-w-2xl mx-auto">
             Join our community and start exploring thousands of custom themes for your Nintendo handheld
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

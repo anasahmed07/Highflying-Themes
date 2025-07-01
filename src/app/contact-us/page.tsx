@@ -99,7 +99,7 @@ export default function ContactUsPage() {
   return (
     <div className="min-h-screen py-16 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="mix-blend-difference text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-light text-white mb-6">
             Get in Touch
           </h1>
@@ -110,7 +110,7 @@ export default function ContactUsPage() {
 
         <div className="grid md:grid-cols-2 gap-12 mb-16">
           <div className="space-y-8">
-            <h2 className="text-2xl font-light text-white mb-6">Contact Information</h2>
+            <h2 className="mix-blend-difference text-2xl font-light text-white mb-6">Contact Information</h2>
             
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
@@ -119,9 +119,9 @@ export default function ContactUsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <div>
+                <div className='mix-blend-difference'>
                   <h3 className="text-white font-medium mb-1">Email</h3>
-                  <p className="text-gray-300">hello@highflyingthemes.com</p>
+                  <p className="text-gray-300">hello@switchtheme.com</p>
                 </div>
               </div>
 
@@ -131,7 +131,7 @@ export default function ContactUsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                   </svg>
                 </div>
-                <div>
+                <div className='mix-blend-difference'>
                   <h3 className="text-white font-medium mb-1">Discord</h3>
                   <p className="text-gray-300">Join our community server</p>
                 </div>
@@ -143,7 +143,7 @@ export default function ContactUsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <div>
+                <div className='mix-blend-difference'>
                   <h3 className="text-white font-medium mb-1">Response Time</h3>
                   <p className="text-gray-300">We typically respond within 24 hours</p>
                 </div>
@@ -152,7 +152,7 @@ export default function ContactUsPage() {
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-2xl font-light text-white mb-6">Send us a Message</h2>
+            <h2 className="mix-blend-difference text-2xl font-light text-white mb-6">Send us a Message</h2>
             
             {/* Success Message */}
             {submitSuccess && (
@@ -243,7 +243,7 @@ export default function ContactUsPage() {
               </div>
               
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="message" className="mix-blend-difference block text-sm font-medium text-gray-300 mb-2">
                   Message *
                 </label>
                 <textarea

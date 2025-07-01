@@ -17,7 +17,7 @@ async def submit_contact_message(contact_data: ContactMessage):
     """Submit a contact message."""
     try:
         # Create contact message in database
-        message = await create_contact_message(
+        message = create_contact_message(
             name=contact_data.name,
             email=contact_data.email,
             subject=contact_data.subject,
