@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "About Us | Switch Theme",
@@ -85,12 +86,18 @@ export default function AboutUsPage() {
             and connect with fellow Nintendo enthusiasts.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200">
+            <Link
+              href="/login-signup"
+              className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 text-center"
+            >
               Start Creating
-            </button>
-            <button className="px-8 py-3 border border-gray-600 hover:border-gray-500 text-white rounded-lg transition-colors duration-200">
+            </Link>
+            <Link
+              href="/themes"
+              className="px-8 py-3 border border-gray-600 hover:border-gray-500 text-white rounded-lg transition-colors duration-200 text-center"
+            >
               Browse Themes
-            </button>
+            </Link>
           </div>
         </div>
       </div>

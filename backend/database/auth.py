@@ -80,43 +80,64 @@ def update_user(email: str, update_data: dict):
         raise
 
 
-def soft_delete_user(email: str):
-    """Soft delete user from MongoDB (set is_active to False)."""
+def move_user_to_deactivated(email: str) -> bool:
+    """Move a user from users to deactivated_users collection."""
     try:
         db = get_database()
         if db is None:
             logger.error("Database connection is None")
             return False
-        
-        result = db.users.update_one(
-            {"email": email},
-            {"$set": {"is_active": False}}
-        )
-        success = result.modified_count > 0
-        if not success:
-            logger.warning(f"No user found to soft delete with email: {email}")
-        return success
+        user = db.users.find_one({"email": email})
+        if not user:
+            logger.warning(f"No user found to move to deactivated_users with email: {email}")
+            return False
+        # Remove _id to avoid duplicate key error in deactivated_users
+        user.pop("_id", None)
+        user["deactivated_at"] = datetime.utcnow()
+        db.deactivated_users.insert_one(user)
+        db.users.delete_one({"email": email})
+        return True
     except Exception as e:
-        logger.error(f"Error soft deleting user: {e}")
+        logger.error(f"Error moving user to deactivated_users: {e}")
         raise
+
+
+def get_deactivated_user_by_email(email: str):
+    """Get deactivated user by email from deactivated_users collection."""
+    try:
+        db = get_database()
+        if db is None:
+            logger.error("Database connection is None")
+            return None
+        user = db.deactivated_users.find_one({"email": email})
+        return user
+    except Exception as e:
+        logger.error(f"Error in get_deactivated_user_by_email: {e}")
+        raise
+
+
+def get_deactivated_user_by_username(username: str):
+    """Get deactivated user by username from deactivated_users collection."""
+    try:
+        db = get_database()
+        if db is None:
+            logger.error("Database connection is None")
+            return None
+        user = db.deactivated_users.find_one({"username": username})
+        return user
+    except Exception as e:
+        logger.error(f"Error in get_deactivated_user_by_username: {e}")
+        raise
+
+
+def soft_delete_user(email: str):
+    """Soft delete user: move to deactivated_users and remove from users."""
+    return move_user_to_deactivated(email)
 
 
 def hard_delete_user(email: str):
-    """Hard delete user from MongoDB (permanently remove)."""
-    try:
-        db = get_database()
-        if db is None:
-            logger.error("Database connection is None")
-            return False
-        
-        result = db.users.delete_one({"email": email})
-        success = result.deleted_count > 0
-        if not success:
-            logger.warning(f"No user found to hard delete with email: {email}")
-        return success
-    except Exception as e:
-        logger.error(f"Error hard deleting user: {e}")
-        raise
+    """Hard delete user: move to deactivated_users and remove from users (same as soft for now)."""
+    return move_user_to_deactivated(email)
 
 
 def get_user_by_id(user_id: str):

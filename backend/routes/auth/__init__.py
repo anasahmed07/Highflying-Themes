@@ -22,12 +22,19 @@ from .utils import (
 )
 from database import (
     get_user_by_email,
+    get_user_by_username,
     create_user,
     update_user,
     update_user_profile,
     soft_delete_user,
     hard_delete_user,
-    get_user_by_username
+    get_user_by_id,
+    add_token_to_blacklist,
+    is_token_blacklisted,
+    blacklist_user_tokens,
+    cleanup_expired_tokens,
+    get_deactivated_user_by_email,
+    get_deactivated_user_by_username
 )
 
 # Create router
@@ -55,6 +62,27 @@ def is_username_taken(username: str) -> bool:
     return existing_user is not None
 
 
+# Helper for user lookup with deactivation logic
+def get_active_or_deactivated_user(email=None, username=None):
+    if email:
+        user = get_user_by_email(email)
+        if user:
+            return user, None
+        deactivated = get_deactivated_user_by_email(email)
+        if deactivated:
+            return None, deactivated
+        return None, None
+    if username:
+        user = get_user_by_username(username)
+        if user:
+            return user, None
+        deactivated = get_deactivated_user_by_username(username)
+        if deactivated:
+            return None, deactivated
+        return None, None
+    return None, None
+
+
 @auth_router.post("/signup", response_model=UserResponse)
 async def signup(user_data: UserCreate):
     """Register a new user."""
@@ -67,15 +95,16 @@ async def signup(user_data: UserCreate):
         )
     
     # Check if username is already taken
-    if is_username_taken(user_data.username):
+    user, deactivated = get_active_or_deactivated_user(username=user_data.username)
+    if user or deactivated:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already exists"
         )
     
     # Check if user already exists
-    existing_user = get_user_by_email(user_data.email)
-    if existing_user:
+    user, deactivated = get_active_or_deactivated_user(email=user_data.email)
+    if user or deactivated:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
@@ -108,8 +137,14 @@ async def signup(user_data: UserCreate):
 @auth_router.post("/login", response_model=Token)
 async def login(user_credentials: UserLogin):
     """Authenticate user and return access token."""
-    user = get_user_by_email(user_credentials.email)
+    user, deactivated = get_active_or_deactivated_user(email=user_credentials.email)
     if not user:
+        if deactivated:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Account is deactivated. Please contact support.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -156,8 +191,14 @@ async def logout(request: Request, current_user: dict = Depends(get_current_user
 @auth_router.get("/profile", response_model=UserResponse)
 async def get_profile(current_user: dict = Depends(get_current_user)):
     """Get current user profile."""
-    user = get_user_by_email(current_user.email)
+    user, deactivated = get_active_or_deactivated_user(email=current_user.email)
     if not user:
+        if deactivated:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Account is deactivated. Please contact support.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
@@ -191,8 +232,14 @@ async def update_profile(
     current_user: dict = Depends(get_current_user)
 ):
     """Update user profile."""
-    user = get_user_by_email(current_user.email)
+    user, deactivated = get_active_or_deactivated_user(email=current_user.email)
     if not user:
+        if deactivated:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Account is deactivated. Please contact support.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
@@ -239,8 +286,14 @@ async def change_password(
     current_user: dict = Depends(get_current_user)
 ):
     """Change user password."""
-    user = get_user_by_email(current_user.email)
+    user, deactivated = get_active_or_deactivated_user(email=current_user.email)
     if not user:
+        if deactivated:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Account is deactivated. Please contact support.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
@@ -277,8 +330,13 @@ async def change_password(
 @auth_router.post("/reset-password")
 async def reset_password(password_data: PasswordReset):
     """Request password reset (placeholder for email functionality)."""
-    user = get_user_by_email(password_data.email)
+    user, deactivated = get_active_or_deactivated_user(email=password_data.email)
     if not user:
+        if deactivated:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot reset password for deactivated account"
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
@@ -305,8 +363,13 @@ async def delete_account(
     current_user: dict = Depends(get_current_user)
 ):
     """Delete user account (soft delete by default, hard delete if specified)."""
-    user = get_user_by_email(current_user.email)
+    user, deactivated = get_active_or_deactivated_user(email=current_user.email)
     if not user:
+        if deactivated:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Account is already deactivated"
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
@@ -343,8 +406,14 @@ async def delete_account(
 @auth_router.get("/verify-token")
 async def verify_token_endpoint(current_user: dict = Depends(get_current_user)):
     """Verify if the current token is valid."""
-    user = get_user_by_email(current_user.email)
+    user, deactivated = get_active_or_deactivated_user(email=current_user.email)
     if not user:
+        if deactivated:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Account is deactivated. Please contact support.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
@@ -368,8 +437,14 @@ async def upload_profile_image(
     current_user: dict = Depends(get_current_user)
 ):
     """Upload a new profile image."""
-    user = get_user_by_email(current_user.email)
+    user, deactivated = get_active_or_deactivated_user(email=current_user.email)
     if not user:
+        if deactivated:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Account is deactivated. Please contact support.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
@@ -458,8 +533,10 @@ async def upload_profile_image(
 @auth_router.get("/public-profile/{username}")
 def public_profile(username: str = Path(..., description="The username to look up")):
     """Get a user's public profile by username (unauthenticated)."""
-    user = get_user_by_username(username)
+    user, deactivated = get_active_or_deactivated_user(username=username)
     if not user or not user.get("is_active", True):
+        if deactivated:
+            raise HTTPException(status_code=404, detail="User not found (deactivated)")
         raise HTTPException(status_code=404, detail="User not found")
     return {
         "_id": user["_id"],

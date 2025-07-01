@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react';
 import { apiService, ContactMessage } from '@/lib/api';
+import Link from 'next/link';
 
 export default function ContactUsPage() {
   const [formData, setFormData] = useState<ContactMessage>({
@@ -280,9 +281,11 @@ export default function ContactUsPage() {
           <p className="text-gray-300 mb-6">
             Can&apos;t find what you&apos;re looking for? Check out our FAQ or reach out to us directly.
           </p>
+          <Link href="/faq">
           <button className="px-8 py-3 border border-gray-600 hover:border-gray-500 text-white rounded-lg transition-colors duration-200">
             View FAQ
           </button>
+          </Link>
         </div>
       </div>
     </div>

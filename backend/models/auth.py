@@ -28,7 +28,6 @@ class ProfileUpdate(BaseModel):
 class UserResponse(UserBase):
     id: str = Field(alias="_id")
     created_at: datetime
-    is_active: bool = True
     bio: Optional[str] = None
     location: Optional[str] = None
     website: Optional[str] = None

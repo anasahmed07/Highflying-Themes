@@ -2,6 +2,7 @@ import ThemeCard from "@/components/themeCard";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import ImageTrail from "@/components/blocks/ImageTrail";
 
 export const metadata: Metadata = {
   title: "Switch Theme | Nintendo 3DS/2DS Custom Themes Platform",
@@ -33,8 +34,26 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      <main className="h-[80vh]">
-        <div className="flex flex-col items-center justify-center h-full">
+      {/* HERO SECTION with overlay */}
+      <section className="relative h-[80vh] flex items-center justify-center">
+        {/* ImageTrail overlay */}
+        <div className="absolute inset-0 z-10">
+          <ImageTrail
+            items={[
+              'https://switchthemes.vercel.app/1.png',
+              'https://switchthemes.vercel.app/2.png',
+              'https://switchthemes.vercel.app/3.png',
+              'https://switchthemes.vercel.app/4.png',
+              'https://switchthemes.vercel.app/5.png',
+              'https://switchthemes.vercel.app/6.png',
+              'https://switchthemes.vercel.app/7.png',
+              'https://switchthemes.vercel.app/8.png',
+            ]}
+            variant={3}
+          />
+        </div>
+        {/* Main hero content */}
+        <main className="relative z-20 flex flex-col items-center justify-center w-full">
           <Image
             src={"/switch-theme-logo.svg"}
             alt="/switch-theme-logo"
@@ -57,8 +76,8 @@ export default function HomePage() {
               </button>
             </Link>
           </div>
-        </div>
-      </main>
+        </main>
+      </section>
 
       <section className="py-16">
         <div className="mix-blend-difference text-center mb-12">

@@ -16,7 +16,9 @@ from .auth import (
     add_token_to_blacklist,
     is_token_blacklisted,
     blacklist_user_tokens,
-    cleanup_expired_tokens
+    cleanup_expired_tokens,
+    get_deactivated_user_by_email,
+    get_deactivated_user_by_username
 )
 
 # Contact operations
@@ -45,6 +47,8 @@ __all__ = [
     "is_token_blacklisted",
     "blacklist_user_tokens",
     "cleanup_expired_tokens",
+    "get_deactivated_user_by_email",
+    "get_deactivated_user_by_username",
     # Contact operations
     "create_contact_message",
     "get_contact_messages",
