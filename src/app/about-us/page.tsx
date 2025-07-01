@@ -1,3 +1,32 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us | Switch Theme",
+  description: "Learn about Switch Theme, our mission, and our community for sharing and discovering Nintendo 3DS/2DS custom themes.",
+  openGraph: {
+    title: "About Us | Switch Theme",
+    description: "Learn about Switch Theme, our mission, and our community for sharing and discovering Nintendo 3DS/2DS custom themes.",
+    url: "https://switchthemes.vercel.app/about-us",
+    siteName: "Switch Theme",
+    images: [
+      {
+        url: "/switch-theme-logo.svg",
+        width: 512,
+        height: 512,
+        alt: "Switch Theme Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Us | Switch Theme",
+    description: "Learn about Switch Theme, our mission, and our community for sharing and discovering Nintendo 3DS/2DS custom themes.",
+    images: ["/switch-theme-logo.svg"],
+  },
+};
+
 export default function AboutUsPage() {
   return (
     <div className="min-h-screen py-16 px-4">

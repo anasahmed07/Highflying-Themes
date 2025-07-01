@@ -1,10 +1,11 @@
-from fastapi import APIRouter, HTTPException, status, Depends, Query, Request, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, status, Depends, Query, Request, UploadFile, File, Form, Path
 from datetime import timedelta
 from PIL import Image
 import io
 import base64
 import sys
 import os
+import re
 
 # Add the backend directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -25,16 +26,53 @@ from database import (
     update_user,
     update_user_profile,
     soft_delete_user,
-    hard_delete_user
+    hard_delete_user,
+    get_user_by_username
 )
 
 # Create router
 auth_router = APIRouter()
 
 
+def validate_username(username: str) -> tuple[bool, str]:
+    """Validate username according to rules."""
+    if len(username) < 3:
+        return False, "Username must be at least 3 characters long"
+    if len(username) > 20:
+        return False, "Username must be 20 characters or less"
+    if not username.islower():
+        return False, "Username must be lowercase only"
+    if ' ' in username:
+        return False, "Username cannot contain spaces"
+    if not re.match(r'^[a-z0-9_]+$', username):
+        return False, "Username can only contain lowercase letters, numbers, and underscores"
+    return True, ""
+
+
+def is_username_taken(username: str) -> bool:
+    """Check if username is already taken."""
+    existing_user = get_user_by_username(username)
+    return existing_user is not None
+
+
 @auth_router.post("/signup", response_model=UserResponse)
 async def signup(user_data: UserCreate):
     """Register a new user."""
+    # Validate username
+    is_valid, error_message = validate_username(user_data.username)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_message
+        )
+    
+    # Check if username is already taken
+    if is_username_taken(user_data.username):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already exists"
+        )
+    
     # Check if user already exists
     existing_user = get_user_by_email(user_data.email)
     if existing_user:
@@ -414,4 +452,21 @@ async def upload_profile_image(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to upload image: {str(e)}"
-        ) 
+        )
+
+
+@auth_router.get("/public-profile/{username}")
+def public_profile(username: str = Path(..., description="The username to look up")):
+    """Get a user's public profile by username (unauthenticated)."""
+    user = get_user_by_username(username)
+    if not user or not user.get("is_active", True):
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "_id": user["_id"],
+        "username": user["username"],
+        "bio": user.get("bio"),
+        "location": user.get("location"),
+        "website": user.get("website"),
+        "social_links": user.get("social_links", {}),
+        "profile_image": user.get("profile_image"),
+    } 

@@ -240,4 +240,17 @@ def cleanup_expired_tokens():
         return deleted_count
     except Exception as e:
         logger.error(f"Error cleaning up expired tokens: {e}")
+        raise
+
+
+def get_user_by_username(username: str):
+    try:
+        db = get_database()
+        if db is None:
+            logger.error("Database connection is None")
+            return None
+        user = db.users.find_one({"username": username})
+        return user
+    except Exception as e:
+        logger.error(f"Error in get_user_by_username: {e}")
         raise 

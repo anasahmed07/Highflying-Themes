@@ -1,4 +1,5 @@
 import ThemePageClient from './ThemePageClient';
+import type { Metadata } from "next";
 
 interface ThemePageProps {
   params: Promise<{
@@ -41,4 +42,32 @@ export default async function ThemePage({ params }: ThemePageProps) {
   };
 
   return <ThemePageClient theme={theme} />;
-} 
+}
+
+export const metadata: Metadata = {
+  title: "Theme Details | Switch Theme",
+  description: "View details, screenshots, and download options for this custom Nintendo 3DS/2DS theme on Switch Theme.",
+  openGraph: {
+    title: "Theme Details | Switch Theme",
+    description: "View details, screenshots, and download options for this custom Nintendo 3DS/2DS theme on Switch Theme.",
+    url: "https://switchthemes.vercel.app/themes/[id]", // Replace with dynamic URL if possible
+    siteName: "Switch Theme",
+    images: [
+      {
+        url: "/switch-theme-logo.svg", // Replace with theme preview if available
+        width: 512,
+        height: 512,
+        alt: "Switch Theme Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Theme Details | Switch Theme",
+    description: "View details, screenshots, and download options for this custom Nintendo 3DS/2DS theme on Switch Theme.",
+    images: ["/switch-theme-logo.svg"], // Replace with theme preview if available
+  },
+};
+// For dynamic OG tags, consider using generateMetadata in the future. 

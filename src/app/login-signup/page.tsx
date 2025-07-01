@@ -1,8 +1,36 @@
 'use client'
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { X } from 'lucide-react';
+import { X, Check, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login or Sign Up | Switch Theme",
+  description: "Sign in or create an account on Switch Theme to upload, share, and download Nintendo 3DS/2DS custom themes. Join our creative community today!",
+  openGraph: {
+    title: "Login or Sign Up | Switch Theme",
+    description: "Sign in or create an account on Switch Theme to upload, share, and download Nintendo 3DS/2DS custom themes. Join our creative community today!",
+    url: "https://switchthemes.vercel.app/login-signup",
+    siteName: "Switch Theme",
+    images: [
+      {
+        url: "/switch-theme-logo.svg",
+        width: 512,
+        height: 512,
+        alt: "Switch Theme Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Login or Sign Up | Switch Theme",
+    description: "Sign in or create an account on Switch Theme to upload, share, and download Nintendo 3DS/2DS custom themes. Join our creative community today!",
+    images: ["/switch-theme-logo.svg"],
+  },
+};
 
 function LoginSignupContent() {
   const searchParams = useSearchParams();
@@ -16,6 +44,53 @@ function LoginSignupContent() {
     confirmPassword: '',
     username: '',
   });
+
+  // Username validation state
+  const [usernameValidation, setUsernameValidation] = useState({
+    isValid: false,
+    errors: [] as string[],
+    isChecking: false,
+  });
+
+  // Username validation rules
+  const usernameRules = [
+    { rule: '3-20 characters', valid: (username: string) => username.length >= 3 && username.length <= 20 },
+    { rule: 'lowercase only', valid: (username: string) => username === username.toLowerCase() },
+    { rule: 'no spaces', valid: (username: string) => !username.includes(' ') },
+    { rule: 'letters, numbers, underscores only', valid: (username: string) => /^[a-z0-9_]+$/.test(username) },
+  ];
+
+  // Validate username in real-time
+  const validateUsername = (username: string) => {
+    if (!username) {
+      setUsernameValidation({ isValid: false, errors: [], isChecking: false });
+      return;
+    }
+
+    const errors: string[] = [];
+    
+    if (username.length < 3) {
+      errors.push('Username must be at least 3 characters long');
+    }
+    if (username.length > 20) {
+      errors.push('Username must be 20 characters or less');
+    }
+    if (username !== username.toLowerCase()) {
+      errors.push('Username must be lowercase only');
+    }
+    if (username.includes(' ')) {
+      errors.push('Username cannot contain spaces');
+    }
+    if (!/^[a-z0-9_]+$/.test(username)) {
+      errors.push('Username can only contain lowercase letters, numbers, and underscores');
+    }
+
+    setUsernameValidation({
+      isValid: errors.length === 0 && username.length >= 3,
+      errors,
+      isChecking: false,
+    });
+  };
 
   // Handle URL parameters for tab switching
   useEffect(() => {
@@ -44,6 +119,11 @@ function LoginSignupContent() {
       [name]: value
     }));
     
+    // Validate username in real-time
+    if (name === 'username') {
+      validateUsername(value);
+    }
+    
     // Clear error when user starts typing
     if (error) {
       clearError();
@@ -53,6 +133,11 @@ function LoginSignupContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
+
+    // Validate username for signup
+    if (!isLogin && !usernameValidation.isValid) {
+      return;
+    }
 
     // Get the redirect URL from search params
     const redirectUrl = searchParams.get('redirect');
@@ -165,16 +250,66 @@ function LoginSignupContent() {
                 <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
                   Username
                 </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  required={!isLogin}
-                  className="w-full px-4 py-3 bg-[#0A0A0A] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-colors"
-                  placeholder="Enter your username"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required={!isLogin}
+                    className={`w-full px-4 py-3 bg-[#0A0A0A] border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors ${
+                      formData.username
+                        ? usernameValidation.isValid
+                          ? 'border-green-500 focus:border-green-500'
+                          : 'border-red-500 focus:border-red-500'
+                        : 'border-gray-600 focus:border-emerald-500'
+                    }`}
+                    placeholder="Enter your username"
+                  />
+                  {formData.username && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {usernameValidation.isValid ? (
+                        <Check className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <AlertCircle className="w-5 h-5 text-red-500" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Username validation errors */}
+                {usernameValidation.errors.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {usernameValidation.errors.map((error, index) => (
+                      <p key={index} className="text-red-400 text-sm flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        {error}
+                      </p>
+                    ))}
+                  </div>
+                )}
+
+                {/* Username rules */}
+                {!isLogin && (
+                  <div className="mt-3 p-3 bg-[#0A0A0A] rounded-lg border border-gray-600">
+                    <p className="text-xs text-gray-400 mb-2 font-medium">Username requirements:</p>
+                    <ul className="space-y-1">
+                      {usernameRules.map((rule, index) => (
+                        <li key={index} className="text-xs flex items-center">
+                          <span className={`w-3 h-3 rounded-full mr-2 ${
+                            formData.username
+                              ? rule.valid(formData.username)
+                                ? 'bg-green-500'
+                                : 'bg-red-500'
+                              : 'bg-gray-500'
+                          }`}></span>
+                          {rule.rule}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
 
@@ -272,7 +407,7 @@ function LoginSignupContent() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (!isLogin && !usernameValidation.isValid)}
               className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-800 disabled:cursor-not-allowed text-white rounded-lg transition-colors duration-200 font-medium"
             >
               {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}

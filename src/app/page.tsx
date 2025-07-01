@@ -1,6 +1,34 @@
 import ThemeCard from "@/components/themeCard";
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Switch Theme | Nintendo 3DS/2DS Custom Themes Platform",
+  description: "Discover, create, and share beautiful custom themes for your Nintendo 3DS, 2DS, N3DS, and N2DS. Join the Switch Theme community for curated, user-submitted themes and easy downloads.",
+  openGraph: {
+    title: "Switch Theme | Nintendo 3DS/2DS Custom Themes Platform",
+    description: "Discover, create, and share beautiful custom themes for your Nintendo 3DS, 2DS, N3DS, and N2DS. Join the Switch Theme community for curated, user-submitted themes and easy downloads.",
+    url: "https://switchthemes.vercel.app/",
+    siteName: "Switch Theme",
+    images: [
+      {
+        url: "/banner.png",
+        width: 512,
+        height: 512,
+        alt: "Switch Theme Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Switch Theme | Nintendo 3DS/2DS Custom Themes Platform",
+    description: "Discover, create, and share beautiful custom themes for your Nintendo 3DS, 2DS, N3DS, and N2DS. Join the Switch Theme community for curated, user-submitted themes and easy downloads.",
+    images: ["/banner.png"],
+  },
+};
 
 export default function HomePage() {
   return (
