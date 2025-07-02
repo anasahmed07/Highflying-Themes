@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { User, BarChart3, Palette, MapPin, Globe, Download, Calendar, Heart, Users, Eye } from 'lucide-react';
+import { User, BarChart3, Palette, MapPin, Globe, Download, Calendar, Heart, Users } from 'lucide-react';
 
 interface UserProfile {
   _id: string;
