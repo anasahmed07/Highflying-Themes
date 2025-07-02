@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import ImageTrail from "@/components/blocks/ImageTrail";
+import ThemeCardGroup from "@/components/ThemeCardGroup";
 
 export const metadata: Metadata = {
   title: "Switch Theme | Nintendo 3DS/2DS Custom Themes Platform",
@@ -49,11 +50,11 @@ export default function HomePage() {
               'https://switchthemes.vercel.app/theme-images/7.png',
               'https://switchthemes.vercel.app/theme-images/8.png',
             ]}
-            variant={3}
+            variant={2}
           />
         </div>
         {/* Main hero content */}
-        <main className="relative z-20 flex flex-col items-center justify-center w-full">
+        <main className="select-none mix-blend-difference relative z-20 flex flex-col items-center justify-center w-full">
           <Image
             src={"/switch-theme-logo.svg"}
             alt="/switch-theme-logo"
@@ -88,11 +89,74 @@ export default function HomePage() {
             Handpicked themes from our community of talented creators
           </p>
         </div>
-        <div className="px-2 sm:px-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-x-3 gap-y-8">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <ThemeCard key={i} />
+        <ThemeCardGroup>
+          {[
+            {
+              href: "/themes/1",
+              title: "Minimal Dark",
+              description: "A clean and minimal dark theme with subtle animations",
+              rating: 4.8,
+              isNew: true,
+              author: "Artist",
+              authorAvatar: "A",
+              system: "3DS",
+              downloads: 1200,
+              imageUrl: "/theme-images/1.png",
+            },
+            {
+              href: "/themes/2",
+              title: "Retro Wave",
+              description: "A retro-inspired theme with neon colors and synth vibes",
+              rating: 4.7,
+              isNew: false,
+              author: "SynthMaster",
+              authorAvatar: "S",
+              system: "N3DS",
+              downloads: 980,
+              imageUrl: "/theme-images/2.png",
+            },
+            {
+              href: "/themes/3",
+              title: "Nature Bliss",
+              description: "Relaxing nature visuals and calming palette",
+              rating: 4.9,
+              isNew: true,
+              author: "Leafy",
+              authorAvatar: "L",
+              system: "2DS",
+              downloads: 1500,
+              imageUrl: "/theme-images/3.png",
+            },
+            {
+              href: "/themes/4",
+              title: "Anime Dreams",
+              description: "Anime-inspired theme for fans of all ages",
+              rating: 4.6,
+              isNew: false,
+              author: "Otaku",
+              authorAvatar: "O",
+              system: "3DS",
+              downloads: 1100,
+              imageUrl: "/theme-images/4.png",
+            },
+            {
+              href: "/themes/5",
+              title: "Abstract Flow",
+              description: "Dynamic abstract shapes and vibrant colors",
+              rating: 4.5,
+              isNew: false,
+              author: "Painter",
+              authorAvatar: "P",
+              system: "N2DS",
+              downloads: 870,
+              imageUrl: "/theme-images/5.png",
+            },
+          ].map((props, i) => (
+            <div className="inline-block max-w-52 md:max-w-72" key={i}>
+              <ThemeCard {...props} />
+            </div>
           ))}
-        </div>
+        </ThemeCardGroup>
       </section>
 
       <section className="py-16">
@@ -104,11 +168,74 @@ export default function HomePage() {
             Fresh themes uploaded by our community
           </p>
         </div>
-        <div className="px-2 sm:px-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-x-3 gap-y-8">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <ThemeCard key={i} />
+        <ThemeCardGroup>
+          {[
+            {
+              href: "/themes/6",
+              title: "Pixel Art Fun",
+              description: "Classic pixel art for a nostalgic feel",
+              rating: 4.4,
+              isNew: true,
+              author: "PixelGuy",
+              authorAvatar: "P",
+              system: "3DS",
+              downloads: 600,
+              imageUrl: "/theme-images/6.png",
+            },
+            {
+              href: "/themes/7",
+              title: "Oceanic",
+              description: "Blue tones and ocean waves for a chill vibe",
+              rating: 4.3,
+              isNew: false,
+              author: "WaveRider",
+              authorAvatar: "W",
+              system: "2DS",
+              downloads: 720,
+              imageUrl: "/theme-images/7.png",
+            },
+            {
+              href: "/themes/8",
+              title: "Space Explorer",
+              description: "Explore the galaxy with this cosmic theme",
+              rating: 4.8,
+              isNew: true,
+              author: "Astro",
+              authorAvatar: "A",
+              system: "N3DS",
+              downloads: 1340,
+              imageUrl: "/theme-images/8.png",
+            },
+            {
+              href: "/themes/9",
+              title: "Pastel Pop",
+              description: "Soft pastel colors for a cute look",
+              rating: 4.2,
+              isNew: false,
+              author: "Candy",
+              authorAvatar: "C",
+              system: "3DS",
+              downloads: 540,
+              imageUrl: "/theme-images/1.png",
+            },
+            {
+              href: "/themes/10",
+              title: "Monochrome",
+              description: "Sleek black and white minimalism",
+              rating: 4.1,
+              isNew: false,
+              author: "Mono",
+              authorAvatar: "M",
+              system: "N2DS",
+              downloads: 410,
+              imageUrl: "/theme-images/2.png",
+            },
+          ].map((props, i) => (
+            <div className="inline-block max-w-52 md:max-w-72" key={i}>
+              <ThemeCard {...props} />
+            </div>
           ))}
-        </div>
+        </ThemeCardGroup>
       </section>
 
       <section className="py-16 bg-[#1E1E1E] rounded-lg mx-4 mb-16">

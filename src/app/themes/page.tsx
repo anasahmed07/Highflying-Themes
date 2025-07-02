@@ -1,6 +1,6 @@
 'use client'
-import ThemeCard from "@/components/themeCard";
-import { ChevronLeft, ChevronRight, Filter, Search, Grid, List } from "lucide-react";
+import ThemeCard, { ThemeCardProps } from "@/components/themeCard";
+import { ChevronLeft, ChevronRight, Filter, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function ThemesPage() {
@@ -8,7 +8,19 @@ export default function ThemesPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
 
-  const themes = Array.from({ length: 50 });
+  // Mock data for themes
+  const mockThemes: ThemeCardProps[] = Array.from({ length: 27 }).map((_, index) => ({
+    href: `/themes/${index + 1}`,
+    title: `Theme ${index + 1}`,
+    description: `This is a demo description for theme ${index + 1}.`,
+    rating: 4.5 - (index % 3) * 0.2,
+    isNew: index % 2 === 0,
+    author: `Author${index + 1}`,
+    authorAvatar: String.fromCharCode(65 + (index % 26)),
+    downloads: 1000 + index * 123,
+    imageUrl: `/theme-images/${(index % 8) + 1}.png`,
+  }));
+  const themes = mockThemes;
   const themesPerPage = 15;
   const totalPages = Math.ceil(themes.length / themesPerPage);
 
@@ -106,23 +118,7 @@ export default function ThemesPage() {
                 >
                   <Filter className="w-4 h-4" />
                   Filters
-                </button>
-                
-                {/* View Mode Toggle - Visible on all screen sizes */}
-                <div className="flex border border-gray-600 rounded-lg">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-3 transition-colors ${viewMode === 'grid' ? 'bg-emerald-600 text-white' : 'text-gray-400 hover:text-white'}`}
-                  >
-                    <Grid className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-3 transition-colors ${viewMode === 'list' ? 'bg-emerald-600 text-white' : 'text-gray-400 hover:text-white'}`}
-                  >
-                    <List className="w-4 h-4" />
-                  </button>
-                </div>
+                </button>                
               </div>
             </div>
 
@@ -191,8 +187,8 @@ export default function ThemesPage() {
               ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' 
               : 'grid-cols-1'
           }`}>
-            {displayedThemesPerPage.map((_, i) => (
-              <ThemeCard key={i} />
+            {displayedThemesPerPage.map((theme) => (
+              <ThemeCard key={theme.href} {...theme} />
             ))}
           </div>
         </div>

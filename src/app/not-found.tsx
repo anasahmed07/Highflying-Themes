@@ -22,7 +22,7 @@ export default function RootNotFound(){
                 
                 <div className="space-y-4">
                     <Link href="/">
-                        <button className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 font-medium">
+                        <button className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 font-medium mb-3">
                             Go Home
                         </button>
                     </Link>
