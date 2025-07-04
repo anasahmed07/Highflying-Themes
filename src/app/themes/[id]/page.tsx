@@ -6,6 +6,16 @@ import type { Metadata} from "next";
 import QRCode from '@/components/QRCode';
 import Image from 'next/image';
 
+async function getUserProfile(username: string) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/public-profile/${encodeURIComponent(username)}`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 export default async function ThemePage({ params }: { params: Promise<{ id: number }>}) {
   const { id } = await params;
   let themeData: ITheme | null = null;
@@ -16,6 +26,8 @@ export default async function ThemePage({ params }: { params: Promise<{ id: numb
   }
 
   const authorAvatar = themeData.author_name ? themeData.author_name[0].toUpperCase() : '?';
+
+  const authorProfile = await getUserProfile(themeData.author_name);
 
   return (
     <div className="min-h-screen py-16 px-4">
@@ -108,11 +120,25 @@ export default async function ThemePage({ params }: { params: Promise<{ id: numb
             <div className="bg-[#1E1E1E] rounded-lg p-6">
               <h3 className="text-lg font-light text-white mb-4">Created by</h3>
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-medium text-2xl">{authorAvatar}</span>
-                </div>
+                <Link href={`/profile/${themeData.author_name}`}>
+                  {authorProfile?.profile_image ? (
+                    <Image
+                      src={authorProfile.profile_image}
+                      alt={themeData.author_name}
+                      width={48}
+                      height={48}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-medium text-2xl">{authorAvatar}</span>
+                    </div>
+                  )}
+                </Link>
                 <div>
-                  <p className="text-white font-medium">{themeData.author_name}</p>
+                  <Link href={`/profile/${themeData.author_name}`}>
+                    <p className="text-white font-medium hover:underline">{themeData.author_name}</p>
+                  </Link>
                   <p className="text-sm text-gray-400">Theme Creator</p>
                 </div>
               </div>

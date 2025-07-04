@@ -133,7 +133,6 @@ const Header = () => {
                       </span>
                     )}
                   </div>
-                  <span>{user.username}</span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${isUserDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 

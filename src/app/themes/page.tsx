@@ -1,87 +1,89 @@
-'use client'
 import ThemeCard, { ThemeCardProps } from "@/components/themeCard";
-import { ChevronLeft, ChevronRight, Filter, Search } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { apiService } from "@/lib/api";
+import SearchAndFilters from "@/components/SearchAndFilters";
 
-export default function ThemesPage() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showFilters, setShowFilters] = useState(false);
+export const revalidate = 60; // ISR
 
-  // Mock data for themes
-  const mockThemes: ThemeCardProps[] = Array.from({ length: 27 }).map((_, index) => ({
-    href: `/themes/${index + 1}`,
-    title: `Theme ${index + 1}`,
-    description: `This is a demo description for theme ${index + 1}.`,
-    rating: 4.5 - (index % 3) * 0.2,
-    isNew: index % 2 === 0,
-    author: `Author${index + 1}`,
-    authorAvatar: String.fromCharCode(65 + (index % 26)),
-    downloads: 1000 + index * 123,
-    imageUrl: `/theme-images/${(index % 8) + 1}.png`,
+interface ThemesPageProps {
+  searchParams?: Promise<{
+    page?: string;
+    search?: string;
+    tags?: string;
+    sort?: string;
+    rating?: string;
+  }>;
+}
+
+export default async function ThemesPage({ searchParams }: ThemesPageProps) {
+  const params = searchParams ? await searchParams : {};
+  const page = Number(params.page) || 1;
+  const limit = 15;
+  const search = params.search || "";
+  const tags = params.tags || "";
+  const sort = params.sort || "newest";
+  const rating = params.rating || "";
+
+  // Pass tags as a comma-separated string to the API (update your backend to support this if needed)
+  const { themes, total } = await apiService.getThemes(page, limit, { search, tags, rating });
+  const totalPages = Math.ceil(total / limit);
+
+  let themeCards: ThemeCardProps[] = themes.map(theme => ({
+    href: `/themes/${theme.theme_id}`,
+    title: theme.name,
+    description: theme.short_description,
+    rating: 4.5, // Placeholder
+    isNew: false, // Placeholder
+    author: theme.author_name,
+    authorAvatar: theme.author_name[0],
+    downloads: theme.download_count || 0,
+    imageUrl: theme.preview_b64 ? `data:image/png;base64,${theme.preview_b64}` : undefined,
   }));
-  const themes = mockThemes;
-  const themesPerPage = 15;
-  const totalPages = Math.ceil(themes.length / themesPerPage);
 
-  const displayedThemesPerPage = themes.slice(
-    (currentPage - 1) * themesPerPage,
-    currentPage * themesPerPage
-  );
-
-  // Set view mode based on screen size
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 450) { // sm breakpoint
-        setViewMode('list');
-      } else {
-        setViewMode('grid');
-      }
-    };
-
-    // Set initial view mode
-    handleResize();
-
-    // Add event listener
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // Client-side sort (sort param is not sent to API)
+  if (sort === "downloads") {
+    themeCards = themeCards.slice().sort((a, b) => b.downloads - a.downloads);
+  } else if (sort === "rating") {
+    themeCards = themeCards.slice().sort((a, b) => b.rating - a.rating);
+  } else if (sort === "popular") {
+    themeCards = themeCards.slice().sort((a, b) => b.downloads - a.downloads); // Placeholder: same as downloads
+  } else if (sort === "newest") {
+    // If you have a date field, sort by it here
+    // themeCards = themeCards.slice().sort((a, b) => ...)
+  }
 
   const getPageNumbers = () => {
     const pages = [];
     const maxVisible = 5;
-    
     if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i);
-        }
+      if (page <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
         pages.push('...');
         pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
+      } else if (page >= totalPages - 2) {
         pages.push(1);
         pages.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i);
-        }
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
       } else {
         pages.push(1);
         pages.push('...');
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i);
-        }
+        for (let i = page - 1; i <= page + 1; i++) pages.push(i);
         pages.push('...');
         pages.push(totalPages);
       }
     }
-    
     return pages;
+  };
+
+  const filterQuery = (params: Record<string, string | number | undefined>) => {
+    const q = Object.entries(params)
+      .filter(([k, v]) => v && k !== "page")
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+      .join("&");
+    return q ? `&${q}` : "";
   };
 
   return (
@@ -98,135 +100,67 @@ export default function ThemesPage() {
           </div>
 
           {/* Search and Filters */}
-          <div className="bg-[#1E1E1E] rounded-lg p-6 mb-8">
-            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-              <div className="flex-1 w-full lg:w-auto">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Search themes..."
-                    className="w-full pl-10 pr-4 py-3 bg-[#0A0A0A] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 px-4 py-3 border border-gray-600 rounded-lg text-white hover:border-gray-500 transition-colors"
-                >
-                  <Filter className="w-4 h-4" />
-                  Filters
-                </button>                
-              </div>
-            </div>
-
-            {/* Filter Panel */}
-            {showFilters && (
-              <div className="mt-6 pt-6 border-t border-gray-700">
-                <div className="grid md:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
-                    <select className="w-full px-3 py-2 bg-[#0A0A0A] border border-gray-600 rounded-lg text-white focus:outline-none focus:border-emerald-500">
-                      <option value="">All Categories</option>
-                      <option value="gaming">Gaming</option>
-                      <option value="anime">Anime</option>
-                      <option value="nature">Nature</option>
-                      <option value="abstract">Abstract</option>
-                      <option value="minimal">Minimal</option>
-                      <option value="retro">Retro</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">System</label>
-                    <select className="w-full px-3 py-2 bg-[#0A0A0A] border border-gray-600 rounded-lg text-white focus:outline-none focus:border-emerald-500">
-                      <option value="">All Systems</option>
-                      <option value="3ds">Nintendo 3DS</option>
-                      <option value="2ds">Nintendo 2DS</option>
-                      <option value="n3ds">New Nintendo 3DS</option>
-                      <option value="n2ds">New Nintendo 2DS XL</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Sort By</label>
-                    <select className="w-full px-3 py-2 bg-[#0A0A0A] border border-gray-600 rounded-lg text-white focus:outline-none focus:border-emerald-500">
-                      <option value="newest">Newest First</option>
-                      <option value="popular">Most Popular</option>
-                      <option value="rating">Highest Rated</option>
-                      <option value="downloads">Most Downloaded</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Rating</label>
-                    <select className="w-full px-3 py-2 bg-[#0A0A0A] border border-gray-600 rounded-lg text-white focus:outline-none focus:border-emerald-500">
-                      <option value="">Any Rating</option>
-                      <option value="4">4+ Stars</option>
-                      <option value="3">3+ Stars</option>
-                      <option value="2">2+ Stars</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          <SearchAndFilters
+            search={search}
+            tags={tags}
+            sort={sort}
+            rating={rating}
+          />
 
           {/* Results Info */}
           <div className="mix-blend-difference flex items-center justify-between mb-6">
             <p className="text-gray-300">
-              Showing {((currentPage - 1) * themesPerPage) + 1} - {Math.min(currentPage * themesPerPage, themes.length)} of {themes.length} themes
+              Showing {(page - 1) * limit + 1} - {Math.min(page * limit, total)} of {total} themes
             </p>
           </div>
 
           {/* Themes Grid/List */}
-          <div className={`grid gap-6 ${
-            viewMode === 'grid' 
-              ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' 
-              : 'grid-cols-1'
-          }`}>
-            {displayedThemesPerPage.map((theme) => (
-              <ThemeCard key={theme.href} {...theme} />
-            ))}
+          <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {themeCards.length === 0 ? (
+              <div className="col-span-full text-center text-gray-400">No themes found.</div>
+            ) : (
+              themeCards.map((theme) => (
+                <ThemeCard key={theme.href} {...theme} />
+              ))
+            )}
           </div>
         </div>
       </main>
-      
       {/* Pagination */}
       <section className="mix-blend-difference py-16">
         <div className="flex justify-center gap-6 sm:gap-14">
-          <button
-            className="flex items-center text-sm hover:text-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
+          <Link
+            href={`/themes?page=${page - 1}${filterQuery({ search, tags, rating })}`}
+            className={`flex items-center text-sm hover:text-gray-400 disabled:cursor-not-allowed disabled:opacity-50${page === 1 ? ' pointer-events-none opacity-50' : ''}`}
+            aria-disabled={page === 1}
           >
             <ChevronLeft className="mr-1 h-4 w-4" /> Previous
-          </button>
-          
+          </Link>
           <div className="flex space-x-1">
-            {getPageNumbers().map((page, index) => (
-              <button
-                key={index}
-                className={`w-8 h-8 flex items-center justify-center rounded-lg hover:text-gray-400 disabled:cursor-not-allowed text-sm ${
-                  page === currentPage ? 'bg-emerald-600 text-white' : 'text-gray-300'
-                }`}
-                onClick={() => typeof page === 'number' && setCurrentPage(page)}
-                disabled={page === currentPage || page === '...'}
-              >
-                {page}
-              </button>
+            {getPageNumbers().map((p, index) => (
+              typeof p === 'number' ? (
+                <Link
+                  key={index}
+                  href={`/themes?page=${p}${filterQuery({ search, tags, rating })}`}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg hover:text-gray-400 disabled:cursor-not-allowed text-sm ${
+                    p === page ? 'bg-emerald-600 text-white' : 'text-gray-300'
+                  }`}
+                  aria-disabled={p === page}
+                >
+                  {p}
+                </Link>
+              ) : (
+                <span key={index} className="w-8 h-8 flex items-center justify-center text-gray-400">...</span>
+              )
             ))}
           </div>
-          
-          <button
-            className="flex items-center text-sm hover:text-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
+          <Link
+            href={`/themes?page=${page + 1}${filterQuery({ search, tags, rating })}`}
+            className={`flex items-center text-sm hover:text-gray-400 disabled:cursor-not-allowed disabled:opacity-50${page === totalPages ? ' pointer-events-none opacity-50' : ''}`}
+            aria-disabled={page === totalPages}
           >
             Next <ChevronRight className="ml-1 h-4 w-4" />
-          </button>
+          </Link>
         </div>
       </section>
     </>

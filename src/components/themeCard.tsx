@@ -25,7 +25,7 @@ const ThemeCard = ({ href, title, description, rating, isNew = false, author, au
       <div className="p-3 bg-[#1E1E1E] group-hover:bg-[#2A2A2A] transition-all">
         <Link href={href} className="block">
           <div className="relative">
-            <div className="w-full aspect-[16/18] bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+            <div className="w-full max-h-64 aspect-[16/18] bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
               {imageUrl ? (
                 <Image src={imageUrl} alt={title} height={400} width={350} className="object-contain w-full h-full" />
               ) : (
@@ -55,7 +55,7 @@ const ThemeCard = ({ href, title, description, rating, isNew = false, author, au
           </div>
           <div className="mt-3 space-y-2">
             <div className="flex items-start justify-between">
-              <h3 className="text-lg font-medium text-white group-hover:text-emerald-400 transition-colors">
+              <h3 className="text-lg line-clamp-1 font-medium text-white group-hover:text-emerald-400 transition-colors">
                 {title}
               </h3>
               <div className="flex items-center space-x-1">

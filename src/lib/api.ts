@@ -297,6 +297,16 @@ class ApiService {
     if (!res.ok) throw new Error('Failed to download theme');
     return await res.blob();
   }
+
+  async getThemes(page = 1, limit = 15, filters?: Record<string, string>) {
+    let queryString = `?page=${page}&limit=${limit}`;
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        queryString += `&${key}=${value}`;
+      });
+    }
+    return this.request<{ themes: ITheme[]; total: number; page: number; limit: number }>(`/themes${queryString}`);
+  }
   
     public async fetchJson<T>(endpoint: string): Promise<T> {
       return this.request<T>(endpoint);
