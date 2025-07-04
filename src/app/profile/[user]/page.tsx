@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { User, BarChart3, Palette, MapPin, Globe, Download, Calendar, Heart, Users } from 'lucide-react';
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 
 interface UserProfile {
   _id: string;
@@ -38,8 +38,7 @@ async function getUserProfile(user: string): Promise<UserProfile | null> {
 }
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ user: string }> },
-  parent: ResolvingMetadata
+  { params }: { params: Promise<{ user: string }> }
 ): Promise<Metadata> {
   const { user } = await params;
   let profile: UserProfile | null = null;

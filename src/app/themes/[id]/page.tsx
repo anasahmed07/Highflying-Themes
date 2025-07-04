@@ -2,7 +2,7 @@ import { ArrowLeft, Star, Eye, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { apiService, ITheme } from '@/lib/api';
 import { ThemeActions } from '@/components/ThemeActions';
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata} from "next";
 import QRCode from '@/components/QRCode';
 import Image from 'next/image';
 
@@ -164,8 +164,7 @@ export default async function ThemePage({ params }: { params: Promise<{ id: numb
 }
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ id: number }> },
-  parent: ResolvingMetadata
+  { params }: { params: Promise<{ id: number }> }
 ): Promise<Metadata> {
   const { id } = await params;
   let themeData: ITheme | null = null;
