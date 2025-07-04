@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { User, BarChart3, Palette, MapPin, Globe, Download, Calendar, Heart, Users } from 'lucide-react';
+import type { Metadata, ResolvingMetadata } from "next";
 
 interface UserProfile {
   _id: string;
@@ -34,6 +35,75 @@ async function getUserProfile(user: string): Promise<UserProfile | null> {
   } catch {
     return null;
   }
+}
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ user: string }> },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { user } = await params;
+  let profile: UserProfile | null = null;
+  try {
+    profile = await getUserProfile(user);
+  } catch {
+    // fallback to generic metadata if user not found
+    return {
+      title: "User Profile | Switch Theme",
+      description: "View a user's public profile and their shared Nintendo 3DS/2DS themes.",
+      openGraph: {
+        title: "User Profile | Switch Theme",
+        description: "View a user's public profile and their shared Nintendo 3DS/2DS themes.",
+        url: `https://switchthemes.vercel.app/profile/${user}`,
+        siteName: "Switch Theme",
+        images: [
+          {
+            url: "/switch-theme-logo.svg",
+            width: 512,
+            height: 512,
+            alt: "Switch Theme Logo",
+          },
+        ],
+        locale: "en_US",
+        type: "profile",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "User Profile | Switch Theme",
+        description: "View a user's public profile and their shared Nintendo 3DS/2DS themes.",
+        images: ["/switch-theme-logo.svg"],
+      },
+    };
+  }
+
+  const profileImage = profile?.profile_image || "/switch-theme-logo.svg";
+  const title = profile?.username ? `${profile.username} | Switch Theme` : "User Profile | Switch Theme";
+  const description = profile?.bio || "View a user's public profile and their shared Nintendo 3DS/2DS themes.";
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://switchthemes.vercel.app/profile/${user}`,
+      siteName: "Switch Theme",
+      images: [
+        {
+          url: profileImage,
+          width: 512,
+          height: 512,
+          alt: title,
+        },
+      ],
+      locale: "en_US",
+      type: "profile",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [profileImage],
+    },
+  };
 }
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ user: string }> }) {

@@ -2,7 +2,7 @@ import { ArrowLeft, Star, Eye, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { apiService, ITheme } from '@/lib/api';
 import { ThemeActions } from '@/components/ThemeActions';
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import QRCode from '@/components/QRCode';
 import Image from 'next/image';
 
@@ -163,30 +163,73 @@ export default async function ThemePage({ params }: { params: Promise<{ id: numb
   );
 }
 
-export const metadata: Metadata = {
-  title: "Theme Details | Switch Theme",
-  description: "View details, screenshots, and download options for this custom Nintendo 3DS/2DS theme on Switch Theme.",
-  openGraph: {
-    title: "Theme Details | Switch Theme",
-    description: "View details, screenshots, and download options for this custom Nintendo 3DS/2DS theme on Switch Theme.",
-    url: "https://switchthemes.vercel.app/themes/[theme_id]", // Replace with dynamic URL if possible
-    siteName: "Switch Theme",
-    images: [
-      {
-        url: "/switch-theme-logo.svg", // Replace with theme preview if available
-        width: 512,
-        height: 512,
-        alt: "Switch Theme Logo",
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: number }> },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id } = await params;
+  let themeData: ITheme | null = null;
+  try {
+    themeData = await apiService.getThemeById(id);
+  } catch {
+    // fallback to generic metadata if theme not found
+    return {
+      title: "Theme Details | Switch Theme",
+      description: "View details, screenshots, and download options for this custom Nintendo 3DS/2DS theme on Switch Theme.",
+      openGraph: {
+        title: "Theme Details | Switch Theme",
+        description: "View details, screenshots, and download options for this custom Nintendo 3DS/2DS theme on Switch Theme.",
+        url: `https://switchthemes.vercel.app/themes/${id}`,
+        siteName: "Switch Theme",
+        images: [
+          {
+            url: "/switch-theme-logo.svg",
+            width: 512,
+            height: 512,
+            alt: "Switch Theme Logo",
+          },
+        ],
+        locale: "en_US",
+        type: "website",
       },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Theme Details | Switch Theme",
-    description: "View details, screenshots, and download options for this custom Nintendo 3DS/2DS theme on Switch Theme.",
-    images: ["/switch-theme-logo.svg"], // Replace with theme preview if available
-  },
-};
-// For dynamic OG tags, consider using generateMetadata in the future. 
+      twitter: {
+        card: "summary_large_image",
+        title: "Theme Details | Switch Theme",
+        description: "View details, screenshots, and download options for this custom Nintendo 3DS/2DS theme on Switch Theme.",
+        images: ["/switch-theme-logo.svg"],
+      },
+    };
+  }
+
+  const previewImage = themeData.preview_b64
+    ? `data:image/png;base64,${themeData.preview_b64}`
+    : "/switch-theme-logo.svg";
+  const title = themeData.name || "Theme Details | Switch Theme";
+  const description = themeData.description || "View details, screenshots, and download options for this custom Nintendo 3DS/2DS theme on Switch Theme.";
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://switchthemes.vercel.app/themes/${id}`,
+      siteName: "Switch Theme",
+      images: [
+        {
+          url: previewImage,
+          width: 512,
+          height: 512,
+          alt: title,
+        },
+      ],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [previewImage],
+    },
+  };
+} 
