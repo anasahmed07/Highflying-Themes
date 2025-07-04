@@ -17,7 +17,7 @@ export interface ThemeCardProps {
 const ThemeCard = ({ href, title, description, rating, isNew = false, author, authorAvatar, downloads, imageUrl,}: ThemeCardProps) => {
   // Extract theme ID from href for download URL
   const themeId = href.split('/').pop();
-  const downloadUrl = `/download/${themeId}`;
+  const downloadUrl = `themes/download/${themeId}`;
 
   return (
     <div className="group w-full rounded-lg hover:translate-y-1 duration-300 transition-all cursor-pointer overflow-hidden">
@@ -27,7 +27,7 @@ const ThemeCard = ({ href, title, description, rating, isNew = false, author, au
           <div className="relative">
             <div className="w-full aspect-[16/18] bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
               {imageUrl ? (
-                <Image src={imageUrl} alt={title} fill className="object-contain w-full h-full" />
+                <Image src={imageUrl} alt={title} height={400} width={350} className="object-contain w-full h-full" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-emerald-600/20 to-blue-600/20 flex items-center justify-center">
                   <svg className="w-12 h-12 text-gray-400 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">

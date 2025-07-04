@@ -50,6 +50,22 @@ export interface ApiError {
   type?: string;
 }
 
+export interface ITheme {
+  id: string;
+  theme_id: number;
+  name: string;
+  author_name: string;
+  short_description: string;
+  description: string;
+  tags: string[];
+  preview_b64?: string;
+  icon_b64?: string;
+  bgm_info?: string;
+  download_count?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 class ApiService {
   private baseUrl: string;
 
@@ -239,6 +255,53 @@ class ApiService {
       body: JSON.stringify(contactData),
     });
   }
+
+  async uploadTheme(formData: FormData): Promise<ITheme> {
+    const url = `${this.baseUrl}/themes/upload`;
+    const config: RequestInit = {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+      headers: {}
+    };
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        config.headers = {
+          ...config.headers,
+          'Authorization': `Bearer ${token}`,
+        };
+      }
+    }
+    const response = await fetch(url, config);
+    if (!response.ok) {
+      let errorMessage = 'An error occurred';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.detail || `HTTP error! status: ${response.status}`;
+      } catch {
+        errorMessage = `HTTP error! status: ${response.status}`;
+      }
+      throw new Error(errorMessage);
+    }
+    return await response.json();
+  }
+
+  async getThemeById(id: number): Promise<ITheme> {
+    return this.request<ITheme>(`/themes/${id}`);
+  }
+  
+  async downloadThemeById(id: number): Promise<Blob> {
+    const url = `${this.baseUrl}/themes/download/${id}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to download theme');
+    return await res.blob();
+  }
+  
+    public async fetchJson<T>(endpoint: string): Promise<T> {
+      return this.request<T>(endpoint);
+    }
+    
 }
 
-export const apiService = new ApiService(); 
+export const apiService = new ApiService();

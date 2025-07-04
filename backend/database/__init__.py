@@ -29,6 +29,26 @@ from .contact import (
     update_contact_message_status
 )
 
+# Theme operations
+from .theme import (
+    create_theme,
+    get_theme_by_id,
+    get_themes,
+    get_themes_by_user,
+    update_theme,
+    delete_theme,
+    increment_download_count,
+    store_file,
+    get_file,
+    delete_file,
+    get_file_info,
+    get_theme,
+    get_current_time,
+    get_popular_themes,
+    get_recent_themes,
+    get_all_tags
+)
+
 __all__ = [
     # Connection
     "connect_to_mongo",
@@ -53,5 +73,22 @@ __all__ = [
     "create_contact_message",
     "get_contact_messages",
     "get_contact_message_by_id",
-    "update_contact_message_status"
+    "update_contact_message_status",
+    # Theme operations
+    "create_theme",
+    "get_theme_by_id",
+    "get_themes",
+    "get_themes_by_user",
+    "update_theme",
+    "delete_theme",
+    "increment_download_count",
+    "store_file",
+    "get_file",
+    "delete_file",
+    "get_file_info",
+    "get_theme",
+    "get_current_time",
+    "get_popular_themes",
+    "get_recent_themes",
+    "get_all_tags"
 ] 

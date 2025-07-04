@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends, Query, Request, UploadFile, File, Form, Path
+from fastapi import APIRouter, HTTPException, status, Depends, Query, Request, UploadFile, File, Path
 from datetime import timedelta
 from PIL import Image
 import io
@@ -11,31 +11,8 @@ import re
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models import UserCreate, UserLogin, UserResponse, Token, PasswordReset, PasswordChange, ProfileUpdate
-from .utils import (
-    get_password_hash, 
-    create_access_token, 
-    get_current_user,
-    verify_password,
-    logout_user,
-    invalidate_user_tokens,
-    ACCESS_TOKEN_EXPIRE_MINUTES
-)
-from database import (
-    get_user_by_email,
-    get_user_by_username,
-    create_user,
-    update_user,
-    update_user_profile,
-    soft_delete_user,
-    hard_delete_user,
-    get_user_by_id,
-    add_token_to_blacklist,
-    is_token_blacklisted,
-    blacklist_user_tokens,
-    cleanup_expired_tokens,
-    get_deactivated_user_by_email,
-    get_deactivated_user_by_username
-)
+from .utils import ( get_password_hash,  create_access_token,  get_current_user, verify_password, logout_user, invalidate_user_tokens, ACCESS_TOKEN_EXPIRE_MINUTES)
+from database import ( get_user_by_email, get_user_by_username, create_user, update_user, update_user_profile, soft_delete_user, hard_delete_user, get_user_by_id, add_token_to_blacklist, is_token_blacklisted, blacklist_user_tokens, cleanup_expired_tokens, get_deactivated_user_by_email, get_deactivated_user_by_username)
 
 # Create router
 auth_router = APIRouter()

@@ -2,6 +2,7 @@ from pymongo import MongoClient
 import os
 from typing import Optional
 import logging
+from gridfs import GridFS
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -77,3 +78,8 @@ def close_mongo_connection():
         _client.close()
         _client = None
         logger.info("MongoDB client closed") 
+
+def get_fs(db):
+    if db is None:
+        db = get_database()
+    return GridFS(db, collection="theme_files")

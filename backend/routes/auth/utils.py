@@ -10,8 +10,9 @@ import sys
 # Add the backend directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from models import TokenData
+from models import TokenData, UserResponse
 from database import is_token_blacklisted, add_token_to_blacklist, blacklist_user_tokens
+from database.auth import get_user_by_email, get_user_by_username
 
 # Security configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
@@ -60,10 +61,9 @@ def verify_token(token: str) -> Optional[TokenData]:
         return None
 
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> TokenData:
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> UserResponse:
     """Get the current user from the JWT token."""
     token = credentials.credentials
-    
     # Check if token is blacklisted
     if is_token_blacklisted(token):
         raise HTTPException(
@@ -71,7 +71,6 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
             detail="Token has been invalidated",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
     token_data = verify_token(token)
     if token_data is None:
         raise HTTPException(
@@ -79,7 +78,24 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return token_data
+    # Fetch the user from the database using email
+    user = get_user_by_email(token_data.email)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    # Convert MongoDB user to UserResponse (or dict with id and username)
+    return UserResponse(
+        id=str(user["_id"]),
+        email=user["email"],
+        username=user["username"],
+        is_active=user.get("is_active", True),
+        created_at=user.get("created_at"),
+        updated_at=user.get("updated_at"),
+        # Add other fields as needed
+    )
 
 
 def logout_user(token: str, email: str):

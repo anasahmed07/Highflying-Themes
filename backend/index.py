@@ -1,10 +1,12 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os
-import dotenv
-from routes.health_check import health_check_router      # Import routers
+from routes import router      # Import routers
 from routes.auth import auth_router
 from routes.contact import contact_router
+from routes.theme import theme_router
+import dotenv
+
 
 dotenv.load_dotenv()
 
@@ -12,7 +14,9 @@ dotenv.load_dotenv()
 app = FastAPI(
     title="Switch Theme API",
     description="API for Switch Theme platform",
-    version="1.0.0"
+    version="1.0.0",
+    swagger_ui_parameters={"defaultModelsExpandDepth": -1},
+    redoc_url=None
 )
 
 # CORS middleware
@@ -25,9 +29,10 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(health_check_router, prefix="", tags=["health-check"])
+app.include_router(router, prefix="", tags=["root"])
 app.include_router(auth_router, prefix="/auth", tags=["authentication"])
 app.include_router(contact_router, prefix="/contact", tags=["contact"])
+app.include_router(theme_router, prefix="/themes", tags=["themes"])
 
 # For Vercel serverless deployment
 if __name__ == "__main__":

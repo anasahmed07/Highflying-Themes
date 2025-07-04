@@ -16,6 +16,17 @@ from .auth import (
 # Contact models
 from .contact import ContactMessage
 
+# Theme models
+from .theme import (
+    PyObjectId,
+    ThemeBase,
+    ThemeCreate,
+    ThemeUpdate,
+    ThemeResponse,
+    ThemeListResponse,
+    ThemeFileInfo
+)
+
 __all__ = [
     # Auth models
     "UserBase",
@@ -28,5 +39,13 @@ __all__ = [
     "PasswordReset",
     "PasswordChange",
     # Contact models
-    "ContactMessage"
+    "ContactMessage",
+    # Theme models
+    "PyObjectId",
+    "ThemeBase",
+    "ThemeCreate",
+    "ThemeUpdate",
+    "ThemeResponse",
+    "ThemeListResponse",
+    "ThemeFileInfo"
 ] 
