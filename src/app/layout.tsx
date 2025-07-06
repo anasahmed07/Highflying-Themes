@@ -4,6 +4,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import SplashCursor from '@/components/blocks/SplashCursor'
 import { AuthProvider } from "@/contexts/AuthContext";
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: "Switch Theme",
@@ -44,6 +45,7 @@ export default function RootLayout({
           <SplashCursor />
           <Header />
           {children}
+          <Analytics/>
           <Footer />
         </AuthProvider>
       </body>
